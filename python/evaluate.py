@@ -57,7 +57,7 @@ def combined_output_smatch(prod_ext, one_line, prod_dir):
 				out_f.write(p.strip() + '\n')
 		out_f.close()			
 		
-		with open(args.g + match_part_g + '_' + str(uniq_id),'w') as out_f:
+		with open(gold_file,'w') as out_f:
 			for g in total_gold:
 				out_f.write(g.rstrip() + '\n')
 		out_f.close()
@@ -144,13 +144,12 @@ def evaluate(entry, ident, model, gold_ids, gold_files, res_dict):
 	f_score, num_sen, res = combined_output_smatch(ident, one_line, entry)	#calculate combination first
 	if res:
 		res_dict[model].append(['average', f_score, int(num_sen)])
-	else:
+ 	else:
 		print 'No results for folder {0} and ident {1}'.format(entry, ident)	
 	
 	for root, dirs, files in os.walk(entry):
 		for f in files:
-			if f!= [] and f.endswith(ident):			# sometimes rubbish files in there, only find the file with the produced AMR
-				
+			if f!= [] and f.endswith(ident) and 'average' not in f:			# sometimes rubbish files in there, only find the file with the produced AMR
 				for idn in gold_ids:					# check if it matches with a file in the gold map
 					if idn in f:
 						produced_f = os.path.join(root,f)
@@ -161,7 +160,7 @@ def evaluate(entry, ident, model, gold_ids, gold_files, res_dict):
 								os_call = 'python ~/Documents/amr_Rik/Seq2seq/src/python/smatch_2.0.2/smatch.py -r {3} {2} -f {0} {1}'.format(produced_f, gold_f, one_line, args.rs)
 								f_score, num_sen = do_smatch(os_call, False)
 								res_dict[model].append([idn, f_score, int(num_sen)])
-								#print 'Smatch for', idn, f
+								#print 'F-score {0} for model {1} and ident {2} and idn {3}'.format(f_score, model, ident, idn)
 							
 							elif args.range_words and not args.range_sen:		#only calculate smatch for sentences with certain word range
 								os_call = 'python ~/Documents/amr_Rik/Seq2seq/src/python/smatch_2.0.2/smatch_max_length.py -w1 {3} -w2 {4} -r {5} {2} -f {0} {1}'.format(produced_f, gold_f, one_line, args.range_words[0], args.range_words[1], args.rs)	
@@ -203,7 +202,10 @@ def add_average(d):
 	return d	
 
 def print_nice_output(res_dict, gold_ids, model_type):
-	gold_ids.append('average')		#add for average
+	if 'average' not in gold_ids:
+		gold_ids.append('average')		#add for average
+	gold_ids = list(set(gold_ids))
+	
 	print '\nResults for', args.exp_name +':\n'
 	print '\n\t\t\t\t' + "\t".join(gold_ids).replace('consensus','consen')  # last replace for nicer printing
 	res_list = [[],[],[]]
@@ -211,7 +213,6 @@ def print_nice_output(res_dict, gold_ids, model_type):
 	#res_dict = add_average(res_dict)
 	
 	print_list = []
-	
 	for m in model_type:
 		num_tabs = int(((8*4) - len(m)) / 8) 
 		print_l = m + num_tabs * '\t'
@@ -232,16 +233,18 @@ def print_nice_output(res_dict, gold_ids, model_type):
 if __name__ == '__main__':
 	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.wiki.coref']
 	ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
+	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki']
 
 	model_type, gold_ids, gold_files, res_dict, dirs_to_check = prepare_data(ids)
 	counter = 0
 	print 'Testing {0} dirs\n'.format(len(dirs_to_check))
 	for idx, root in enumerate(dirs_to_check):
-		print 'Testing', root
-		for ident in ids:
-			root_fix = args.roots_to_check + root
-			res_dict = evaluate(root_fix, ident, model_type[counter], gold_ids, gold_files, res_dict)
-			counter += 1
+		if '536950' in root:
+			print 'Testing', root
+			for ident in ids:
+				root_fix = args.roots_to_check + root
+				res_dict = evaluate(root_fix, ident, model_type[counter], gold_ids, gold_files, res_dict)
+				counter += 1
 	
 	res_list = print_nice_output(res_dict, gold_ids, model_type)
 		

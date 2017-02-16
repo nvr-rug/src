@@ -39,6 +39,6 @@ def process_file(in_path, out_path, fname):
 if __name__ == '__main__':
     for root, dirs, files in os.walk(args.d):
         for fname in files:
-            if fname.endswith(args.extension):
+            if fname.endswith(args.extension) and 'bio' not in fname:
 				f_path = os.path.join(root, fname)
 				process_file(f_path, args.out_folder, fname.replace('alignments', 'amrs'))

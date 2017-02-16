@@ -541,14 +541,17 @@ def get_permutations(part, level,  sent_amr):
 	
 	permutations = combine_permutations(permutations, args.cut_off)	
 	word_list 	 = matching_words(permutations)													#find the list of lists that contain word-sense pairs
-															#find best permutation
-	for p in range(len(permutations)):
-		for idx in range(len(permutations)-1):
-			if do_swap(word_list[idx], word_list[idx+1]):
-				permutations[idx], permutations[idx+1] = permutations[idx+1], permutations[idx]
-				word_list[idx], word_list[idx+1] = word_list[idx+1], word_list[idx]			
-							
-	return permutations, keep_string		
+	if len(word_list)!= len(permutations):
+		print 'Strange AMR part'
+		return permutations, keep_string																		#find best permutation
+	else:
+		for p in range(len(permutations)):
+			for idx in range(len(permutations)-1):
+				if do_swap(word_list[idx], word_list[idx+1]):
+					permutations[idx], permutations[idx+1] = permutations[idx+1], permutations[idx]
+					word_list[idx], word_list[idx+1] = word_list[idx+1], word_list[idx]			
+								
+		return permutations, keep_string		
 
 
 def do_string_adjustments(permutations_new, keep_string2):
@@ -705,10 +708,6 @@ def write_output(f, old_amrs, new_amrs, sent_amrs):
 	write_to_file(validated_sents, sent_new)
 
 	if args.double:
-		for i,j in zip(validated_old, validated_new):
-			if len(i) != len(j):
-				print 'Wrong length', len(i), len(j)
-
 		validated_combined_amrs, validated_combined_sents = combine_amrs(validated_old, validated_new, validated_sents, filter_same = True)		# double amrs!	
 		write_to_file(validated_combined_amrs, double_amr)
 		write_to_file(validated_combined_sents, double_sent)
