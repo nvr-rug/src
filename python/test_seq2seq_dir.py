@@ -67,7 +67,7 @@ def add_wikification(in_file, sent_file, log_file):
 	wiki_file = in_file + '.wiki'
 	wikification_seq2seq.wikify_pipeline_output(in_file, 'dbpedia', sent_file, log_file)
 	log_file.write('\tValidating again...\n')
-	check_valid(wiki_file, False, log_file)
+	check_valid(wiki_file, True, log_file)
 	
 	return wiki_file
 
@@ -86,6 +86,7 @@ def do_pruning(in_file, log_file):
 	prune_call = 'python ' + args.python_path + 'delete_double_args.py -f {0}'.format(in_file)
 	os.system(prune_call)
 	prune_file = in_file + '.pruned'
+	check_valid(prune_file, True, log_file)
 	
 	return prune_file
 

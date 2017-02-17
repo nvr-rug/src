@@ -239,12 +239,12 @@ if __name__ == '__main__':
 	counter = 0
 	print 'Testing {0} dirs\n'.format(len(dirs_to_check))
 	for idx, root in enumerate(dirs_to_check):
-		if '536950' in root:
-			print 'Testing', root
-			for ident in ids:
-				root_fix = args.roots_to_check + root
-				res_dict = evaluate(root_fix, ident, model_type[counter], gold_ids, gold_files, res_dict)
-				counter += 1
+		#if '536950' in root:
+		print 'Testing', root
+		for ident in ids:
+			root_fix = args.roots_to_check + root
+			res_dict = evaluate(root_fix, ident, model_type[counter], gold_ids, gold_files, res_dict)
+			counter += 1
 	
 	res_list = print_nice_output(res_dict, gold_ids, model_type)
 		
