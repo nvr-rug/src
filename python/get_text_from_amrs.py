@@ -16,7 +16,7 @@ args = parser.parse_args()
 
 def process_line(line):
     fields = line.split()
-    if fields[0] == '#' and fields[1] == '::snt':
+    if fields[0] == '#' and (fields[1] == '::snt' or fields[1] == '::tok'):
         # Skip first (sent. id) and last (?) fields
         return ' '.join(fields[2:])
 
@@ -39,6 +39,6 @@ def process_file(in_path, out_path, fname):
 if __name__ == '__main__':
     for root, dirs, files in os.walk(args.d):
         for fname in files:
-            if fname.endswith(args.extension) and 'bio' not in fname:
+            if fname.endswith(args.extension):
 				f_path = os.path.join(root, fname)
 				process_file(f_path, args.out_folder, fname.replace('alignments', 'amrs'))
