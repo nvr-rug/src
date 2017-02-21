@@ -92,7 +92,7 @@ def create_vocabulary(vocabulary_path, data_path, max_vocabulary_size,
       for key in vocab:
           if vocab[key] >= min_vocab:
               new_vocab[key] = vocab[key]
-
+      print ('Vocab size {0}'.format(max_vocabulary_size))
       print ('For data path {0}\n'.format(data_path))
       print ('Deleted vocab items with len < {0}'.format(min_vocab))
       print ('len old: {0}, len new: {1}\n'.format(len(vocab), len(new_vocab)))        
