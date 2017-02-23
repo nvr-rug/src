@@ -118,7 +118,8 @@ def evaluate(gold_f, produced_f, epoch, res_dict, id_num, root_fix):
 if __name__ == '__main__':
 	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.wiki.coref']
 	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.wiki.coref','.seq.amr.restore.wiki.coref']
-	ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
+	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
+	ids = ['.seq.amr.restore']
 	
 	dirs_to_check = os.walk(args.roots_to_check).next()[1]
 	

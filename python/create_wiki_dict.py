@@ -65,7 +65,8 @@ if __name__ == '__main__':
 				wiki_dict = add_to_dict(wiki_dict, name, prev_wiki)
 				prev_wiki = False
 			else:
-				print 'Strange', idx	
+				pass
+				#print 'Strange', idx	
 		
 		elif ':wiki' in line:
 			if ':name' in line.split(':wiki')[1]:
@@ -87,9 +88,26 @@ if __name__ == '__main__':
 	
 	for name in name_dict:
 		if name in wiki_dict:
-			if (float(len(wiki_dict[name])) /  float(name_dict[name])) < 0.50:		#delete that goes wrong more than 50% of the time
-				#print 'delete', len(wiki_dict[name]), name_dict[name]
-				del wiki_dict[name]
+			#if len(wiki_dict[name]) != name_dict[name]:
+			#	print 'Name {2} occurs {0} times, Wikified {1} times'.format(name_dict[name], len(wiki_dict[name]), name)
+			wiki_list = [x for x in wiki_dict[name] if x != '-']
+			if len(set(wiki_list)) > 1:
+				print 'Name {2} occurs {0} times, Wikified {1} times'.format(name_dict[name], len(wiki_dict[name]), name)
+				print set(wiki_list)
+			#else:	
+			#	if len(wiki_dict[name]) != name_dict[name]:
+			#		print 'Name {2} occurs {0} times, Wikified {1} times'.format(name_dict[name], len(wiki_dict[name]), name)
+					#if len(wiki_dict[name]) > 10:
+						#print wiki_dict[name][0:10]
+					#else:
+						#print wiki_dict[name]
+					#print '\n'		
+			
+	#for name in name_dict:
+	#	if name in wiki_dict:
+	#		if (float(len(wiki_dict[name])) /  float(name_dict[name])) < 0.50:		#delete that goes wrong more than 50% of the time
+	#			#print 'delete', len(wiki_dict[name]), name_dict[name]
+	#			del wiki_dict[name]
 	
 	for key in wiki_dict:
 		wiki_dict[key] = most_common(wiki_dict[key])						
