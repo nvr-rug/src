@@ -2,7 +2,6 @@
 #SBATCH --time=01:30:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=4
-#SBATCH --job-name=test_file
 #SBATCH --mem=2G
 
 #source ../../config/config_test.sh

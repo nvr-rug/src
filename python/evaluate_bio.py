@@ -5,6 +5,7 @@ import re
 import sys
 import subprocess
 import argparse
+import json
 from multiprocessing import Pool
 
 '''Script that produces the Smatch output for CAMR, Boxer and Seq2seq produced AMRs'''
@@ -18,6 +19,7 @@ parser.add_argument('-train_size', required=False, type=int, default = 33248 , h
 parser.add_argument('-range_sen', nargs='+', type=int, default = [], help ='Range of sentence length [min max]')
 parser.add_argument('-range_words', nargs='+', type=int, default = [], help ='Set range of words instead of chars [min max]')
 parser.add_argument('-roots_to_check', required = True, help = 'Root folder to check for output results')
+parser.add_argument('-eval_folder', required = True, type=str, help="Evaluation folder")
 
 args = parser.parse_args()
 
@@ -37,6 +39,20 @@ def do_smatch(os_call, range_check):
 	else:	
 		return f_score, num_sen
 
+
+def get_res_dict():
+	dict_file = args.eval_folder + 'res_dict.txt'
+	
+	if os.path.isfile(dict_file):
+		with open(dict_file, 'r') as in_f:
+			res_dict = json.load(in_f)
+		in_f.close()
+		print 'Read in dict file with len {0}\n'.format(len(res_dict))	
+	else:	
+		res_dict = []
+		print 'Start testing from scratch\n'
+	
+	return res_dict
 
 def filter_sent(sent_spl):
 	sent = []
@@ -95,6 +111,16 @@ def get_smatch_max_length(gold_f, produced_f, threshold, root, epoch, id_num):
 	f_score, num_sen = do_smatch(os_call, False)
 	
 	print 'Ep {3} {4}, max len {0}: {1} with {2} sent'.format(threshold, f_score, num_sen, epoch, id_num)
+
+
+def do_check(res_dict, epoch, id_num):
+	check = True
+	for item in res_dict:		#check if we already calculated a smatch score for this input
+		if item[0] == epoch and item[1] == id_num:
+			check = False
+			break
+	
+	return check		
 	
 def evaluate(gold_f, produced_f, epoch, res_dict, id_num, root_fix):
 	'''Will print smatch scores for Seq2seq checkpoints'''
@@ -106,7 +132,7 @@ def evaluate(gold_f, produced_f, epoch, res_dict, id_num, root_fix):
 		
 	os_call = 'python ~/Documents/amr_Rik/Seq2seq/src/python/smatch_2.0.2/smatch.py -r {3} {2} -f {0} {1}'.format(produced_f, gold_f, one_line, args.rs)
 	f_score, num_sen = do_smatch(os_call, False)
-	res_dict.append([epoch, '{0}{1} {2}'.format(print_m, num_tabs, f_score)])
+	res_dict.append([epoch, id_num, '{0}{1} {2}'.format(print_m, num_tabs, f_score)])
 	
 	#if epoch == 16 and id_num == '.seq.amr.restore.pruned.wiki.coref.all':
 	#	for thres in range(1,50):		
@@ -118,14 +144,13 @@ def evaluate(gold_f, produced_f, epoch, res_dict, id_num, root_fix):
 if __name__ == '__main__':
 	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.wiki.coref']
 	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.wiki.coref','.seq.amr.restore.wiki.coref']
-	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
-	ids = ['.seq.amr.restore']
+	ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
+	#ids = ['.seq.amr.restore']
+	#ids = ['.seq.amr.restore.pruned.coref', 'seq.amr.restore.pruned']
 	
 	dirs_to_check = os.walk(args.roots_to_check).next()[1]
 	
-	print 'Results for {0}'.format(args.exp_name)
-	
-	res_dict = []
+	res_dict = get_res_dict()
 	
 	for idx, root in enumerate(dirs_to_check):
 		root_fix = args.roots_to_check + root
@@ -135,8 +160,24 @@ if __name__ == '__main__':
 					if f.endswith(id_num):
 						f_path = os.path.join(r,f)
 						epoch = round(float(re.findall(r'\d\d\d[\d]+', f_path)[1]) / float(args.train_size),1)			#skip p266548 (hacky)
-						res_dict = evaluate(args.g, f_path, epoch, res_dict, id_num, root_fix)
+						if do_check(res_dict, epoch, id_num):
+							res_dict = evaluate(args.g, f_path, epoch, res_dict, id_num, root_fix)	
 	
+	#print results and dump JSON file with results for easy read in 
+		
 	res_dict.sort(key=lambda x: x[0])
+	
+	print 'Results for {0}'.format(args.exp_name)
 	for l in res_dict:
-		print l[1]					
+		print l[2]
+	
+	eval_file = args.eval_folder + 'evaluation.txt'
+	with open(eval_file, 'w') as out_f:
+		out_f.write('Results for {0}\n\n'.format(args.exp_name))
+		for l in res_dict:
+			out_f.write(l[2].strip() + '\n')
+	out_f.close()
+	
+	with open(args.eval_folder + 'res_dict.txt', 'w') as out_f:
+		json.dump(res_dict, out_f)
+	out_f.close()						

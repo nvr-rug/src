@@ -1,0 +1,1 @@
+(differ-02 :polarity 100 :ARG1 (weight :mod (xenograft :mod (abdominal) :mod (tumor)) :location (group :mod (control) :ARG1-of (transplant-01 :ARG3 (cell-line :name (name :op1 "KRASGOTÂ_UNK") :mod (wild-type) :name (name :op1 "KRASGO1") :mod (wild-type) :name (name :op1 "KRASGO1"))))) :ARG1-of (describe-01 :ARG0 (figure :mod "7B")))

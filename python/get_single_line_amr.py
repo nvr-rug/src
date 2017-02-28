@@ -2,24 +2,21 @@ import sys
 
 def single_line_convert(f):
 	single_amrs = []
-	prev_amr = False
-	for line in open(f,'r'):
-		if line[0] != '#':					# skip non-amr lines
-			if prev_amr:
-				amr.append(line.strip())
-			else:
-				amr = [line.strip()]
-			prev_amr = True
-		else:									# start a new AMR to convert
-			if prev_amr:
-				single_line_amr = " ".join(amr)
-				single_amrs.append(single_line_amr)
-				#print single_line_amr
-			prev_amr = False
+	amr = []
 
-	if amr != [] and amr != '':
+	for line in open(f,'r'):
+		if line[0] == '#':					
+			continue
+		elif not line.strip():
+			single_line_amr = " ".join(amr)
+			single_amrs.append(single_line_amr)
+			amr = []
+		else:									
+			amr.append(line.strip())
+
+	if amr:
 		single_line_amr = " ".join(amr)
-		single_amrs.append(single_line_amr)				# last one is not automatically added due to missing '#'
+		single_amrs.append(single_line_amr)				# last one is not automatically added if there is no new line behind
 	
 	return single_amrs
 

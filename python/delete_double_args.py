@@ -326,6 +326,6 @@ if __name__ == '__main__':
 	restore_new = out_file_fil.replace('.restore.pruned_temp','.restore.pruned')
 	restore_call = 'python /home/p266548/Documents/amr_Rik/Seq2seq/src/python/restoreAMR/restore_amr.py {0} > {1}'.format(out_file_fil, restore_new)
 	os.system(restore_call)
-	
+
 	os.system("rm {0}".format(out_file_fil))	#remove temp file again
 	

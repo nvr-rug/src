@@ -208,12 +208,12 @@ def create_model_train(session, forward_only):
   ckpt = tf.train.get_checkpoint_state(FLAGS.train_dir)
   print ('Creating model...')
   if ckpt:
-    if FLAGS.train_dir.endswith('/'):
-      restore_path = FLAGS.train_dir + ckpt.model_checkpoint_path
-    else:
-      restore_path = FLAGS.train_dir + '/' + ckpt.model_checkpoint_path
+   # if FLAGS.train_dir.endswith('/'):
+    #  restore_path = FLAGS.train_dir + ckpt.model_checkpoint_path
+   # else:
+    #  restore_path = FLAGS.train_dir + '/' + ckpt.model_checkpoint_path
       
-      #restore_path = ckpt.model_checkpoint_path
+    restore_path = ckpt.model_checkpoint_path
       
     print ('restore_path', restore_path)
     if ckpt and os.path.exists(restore_path):

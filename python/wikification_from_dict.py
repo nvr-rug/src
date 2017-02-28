@@ -29,12 +29,14 @@ if __name__ == '__main__':
 	amrs = []
 	cur_amr = []
 	
-	for line in open(args.f, 'r'):
-		if not line.strip():
-			amrs.append(" ".join(cur_amr))
-			cur_amr = []
-		else:
-			cur_amr.append(line.strip())
+	amrs = [x.strip() for x in open(args.f, 'r')]
+	
+	#for line in open(args.f, 'r'):
+	#	if not line.strip():
+	#		amrs.append(" ".join(cur_amr))
+	#		cur_amr = []
+	#	else:
+	#		cur_amr.append(line.strip())
 		
 			
 	for idx, line in enumerate(amrs):
@@ -63,7 +65,7 @@ if __name__ == '__main__':
 			
 	print 'Inserted Wiki link {0} times, errors {1}'.format(found_wiki, errors)			
 	
-	with open(args.f + '.wiki', 'w') as out_f:
+	with open(args.f + '.wiki_new', 'w') as out_f:
 		for l in all_lines:
 			out_f.write(l.strip() + '\n')
 	out_f.close()		

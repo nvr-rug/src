@@ -184,7 +184,7 @@ def do_extra_steps(line):
     new_line = re.sub(r'(op\d)(\d+)\.(\d+)',r'\1 \2.\3',new_line)
     new_line = re.sub(r'(mod\d)(\d+)\.(\d+)',r'\1 \2.\3',new_line)
     new_line = re.sub(r'(ARG\d)(\d+)\.(\d+)',r'\1 \2.\3',new_line)
-    
+    new_line = new_line.replace(':polarity 100',':polarity -')
     return new_line
 
 global ggg
@@ -192,8 +192,10 @@ ggg = 0
 
 for line in open(sys.argv[1],'r'):
     ggg += 1
-    line = line.replace(' ','').replace('+',' ')
+    line = line.replace(' ','').replace('+',' ').replace(':polarity-',':polarity100')
     
+    #if 'polarity' in line:
+	#	print line
     if line[-1] != ')':                                 #skip dangling edges
         line = ")".join(line.split(')')[:-1]) + ')'
     

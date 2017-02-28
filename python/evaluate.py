@@ -6,13 +6,14 @@ import sys
 import subprocess
 import argparse
 import random
+import json
 from multiprocessing import Pool
 
 '''Script that produces the Smatch output for CAMR, Boxer and Seq2seq produced AMRs'''
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-g', required=True, type=str, help="Folder with gold AMR files")
-parser.add_argument('-eval_file', default = 'unnamed', type=str, help="Evaluation file")
+parser.add_argument('-eval_folder', required = True, type=str, help="Evaluation folder")
 parser.add_argument('-exp_name', required = True, type=str, help="Name of experiment")
 parser.add_argument('-mx', required=False, type=int, default = 4, help="Number of maxthreads")
 parser.add_argument('-rs', required=False, type=int, default = 4, help="Number of restarts for smatch")
@@ -29,7 +30,6 @@ def combined_output_smatch(prod_ext, one_line, prod_dir):
 	total_gold = []
 	total_prod = []
 	res = False
-	
 	for root1, dirs1, files1 in os.walk(prod_dir):
 		for f1 in files1:
 			for root2, dirs2, files2 in os.walk(args.g):
@@ -49,8 +49,6 @@ def combined_output_smatch(prod_ext, one_line, prod_dir):
 		uniq_id = random.randint(0, 10000)
 		prod_file = prod_dir + '/' + match_part_p
 		gold_file = args.g + match_part_g + '_' + str(uniq_id)
-		#print 'prod:', prod_file
-		#print 'gold:', gold_file,'\n'
 		
 		with open(prod_file,'w') as out_f:
 			for p in total_prod:
@@ -76,7 +74,9 @@ def prepare_data(ids):
 	
 	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.wiki.coref']
 	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref']
-	ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
+	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
+	ids = ['.seq.amr.restore']
+	dict_file = args.eval_folder + 'res_dict.txt'
 	
 	model_type = []
 	for fol in dirs_to_check:
@@ -89,7 +89,18 @@ def prepare_data(ids):
 		
 	gold_input = args.g
 	gold_ids, gold_files = get_gold_ids(gold_input)
-	res_dict = create_res_dict(model_type)	
+	
+	#don't do smatch way too many times; store results in dict, try to read them here
+	
+	if os.path.isfile(dict_file):
+		with open(dict_file, 'r') as in_f:
+			res_dict = json.load(in_f)
+		in_f.close()
+		print 'Read in dict with len {0}'.format(len(res_dict))	
+	else:	
+		res_dict = create_res_dict(model_type)
+		print 'Started testing from scratch'	
+	
 	return model_type, gold_ids, gold_files, res_dict, dirs_to_check	
 
 
@@ -157,9 +168,11 @@ def evaluate(entry, ident, model, gold_ids, gold_files, res_dict):
 							gold_f = os.path.join(args.g, get_gold_file(idn, gold_files))
 							
 							if not args.range_sen and not args.range_words: # the normal output
+								print produced_f, gold_f
 								os_call = 'python ~/Documents/amr_Rik/Seq2seq/src/python/smatch_2.0.2/smatch.py -r {3} {2} -f {0} {1}'.format(produced_f, gold_f, one_line, args.rs)
 								f_score, num_sen = do_smatch(os_call, False)
 								res_dict[model].append([idn, f_score, int(num_sen)])
+								print 'model', model, 'idn', idn, 'f_score', str(f_score)
 								#print 'F-score {0} for model {1} and ident {2} and idn {3}'.format(f_score, model, ident, idn)
 							
 							elif args.range_words and not args.range_sen:		#only calculate smatch for sentences with certain word range
@@ -227,24 +240,39 @@ def print_nice_output(res_dict, gold_ids, model_type):
 	printer = [y[1] for y in sorted([[float(z.split()[0]), z] for z in print_list], key = lambda x : x[0])] #sort by number of epochs
 	for p in printer: print p
 	
+	eval_file = args.eval_folder + 'evaluation.txt'
+	with open(eval_file, 'w') as out_f:
+		for p in printer:
+			out_f.write(p.strip() + '\n')
+	out_f.close()		
+	
 	return res_list
 	
 		
 if __name__ == '__main__':
 	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.wiki.coref']
-	ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
+	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
 	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki']
-
+	ids = ['.seq.amr.restore']
+	
 	model_type, gold_ids, gold_files, res_dict, dirs_to_check = prepare_data(ids)
 	counter = 0
 	print 'Testing {0} dirs\n'.format(len(dirs_to_check))
 	for idx, root in enumerate(dirs_to_check):
-		#if '536950' in root:
-		print 'Testing', root
 		for ident in ids:
 			root_fix = args.roots_to_check + root
-			res_dict = evaluate(root_fix, ident, model_type[counter], gold_ids, gold_files, res_dict)
+			print root
+			if res_dict[model_type[counter]] == [] and ('908330' in root or '965100' in root):
+				res_dict = evaluate(root_fix, ident, model_type[counter], gold_ids, gold_files, res_dict)
+			else:
+				print 'Skip {0}'.format(model_type[counter])
 			counter += 1
 	
 	res_list = print_nice_output(res_dict, gold_ids, model_type)
+	
+	#save smatch results to dict
+	
+	with open(args.eval_folder + 'res_dict.txt', 'w') as out_f:
+		json.dump(res_dict, out_f)
+	out_f.close()	
 		
