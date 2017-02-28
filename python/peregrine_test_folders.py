@@ -32,4 +32,4 @@ if __name__ == '__main__':
 				break
 		if not output:			# no output folder exists, call testing script		
 			script_call = 'sbatch -J {0} /home/p266548/Documents/amr_Rik/Seq2seq/src/scripts/test.sh {1} per {2}/'.format('ep-' + num_c,args.f, c)
-			print script_call,'\n'		
+			subprocess.call(['sbatch', '-J', 'ep-' + num_c , '/home/p266548/Documents/amr_Rik/Seq2seq/src/scripts/test.sh', args.f, 'per', c + '/'])	

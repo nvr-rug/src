@@ -172,7 +172,6 @@ def evaluate(entry, ident, model, gold_ids, gold_files, res_dict):
 								os_call = 'python ~/Documents/amr_Rik/Seq2seq/src/python/smatch_2.0.2/smatch.py -r {3} {2} -f {0} {1}'.format(produced_f, gold_f, one_line, args.rs)
 								f_score, num_sen = do_smatch(os_call, False)
 								res_dict[model].append([idn, f_score, int(num_sen)])
-								print 'model', model, 'idn', idn, 'f_score', str(f_score)
 								#print 'F-score {0} for model {1} and ident {2} and idn {3}'.format(f_score, model, ident, idn)
 							
 							elif args.range_words and not args.range_sen:		#only calculate smatch for sentences with certain word range
@@ -261,11 +260,9 @@ if __name__ == '__main__':
 	for idx, root in enumerate(dirs_to_check):
 		for ident in ids:
 			root_fix = args.roots_to_check + root
-			print root
-			if res_dict[model_type[counter]] == [] and ('908330' in root or '965100' in root):
+			if res_dict[model_type[counter]] == []:
 				res_dict = evaluate(root_fix, ident, model_type[counter], gold_ids, gold_files, res_dict)
-			else:
-				print 'Skip {0}'.format(model_type[counter])
+			
 			counter += 1
 	
 	res_list = print_nice_output(res_dict, gold_ids, model_type)
