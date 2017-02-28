@@ -9,7 +9,7 @@ import argparse
 '''Script call sbatch scripts for testing in parallel'''
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-c', required=True, type=str, help="Config-file for sbatch script")
+parser.add_argument('-f', required=True, type=str, help="Config-file for sbatch script")
 parser.add_argument('-e', required=True, type=str, help="Experiment-folder")
 
 args = parser.parse_args()
@@ -31,5 +31,5 @@ if __name__ == '__main__':
 				output = True	#output file already exists, 
 				break
 		if not output:			# no output folder exists, call testing script		
-			script_call = 'sbatch -J {0} /home/p266548/Documents/amr_Rik/Seq2seq/src/scripts/test.sh {1} per {2}/'.format('ep-' + num_c,args.c, c)
-			print script_call		
+			script_call = 'sbatch -J {0} /home/p266548/Documents/amr_Rik/Seq2seq/src/scripts/test.sh {1} per {2}/'.format('ep-' + num_c,args.f, c)
+			print script_call,'\n'		
