@@ -7,6 +7,7 @@ import subprocess
 import argparse
 import json
 from multiprocessing import Pool
+import datetime
 
 '''Script that produces the Smatch output for CAMR, Boxer and Seq2seq produced AMRs'''
 
@@ -151,7 +152,7 @@ if __name__ == '__main__':
 	dirs_to_check = os.walk(args.roots_to_check).next()[1]
 	
 	res_dict = get_res_dict()
-	
+	all_epochs = []
 	for idx, root in enumerate(dirs_to_check):
 		root_fix = args.roots_to_check + root
 		for id_num in ids:
@@ -160,6 +161,7 @@ if __name__ == '__main__':
 					if f.endswith(id_num):
 						f_path = os.path.join(r,f)
 						epoch = round(float(re.findall(r'\d\d\d[\d]+', f_path)[1]) / float(args.train_size),1)			#skip p266548 (hacky)
+						all_epochs.append(epoch)
 						if do_check(res_dict, epoch, id_num):
 							res_dict = evaluate(args.g, f_path, epoch, res_dict, id_num, root_fix)	
 	
@@ -171,7 +173,8 @@ if __name__ == '__main__':
 	for l in res_dict:
 		print l[2]
 	
-	eval_file = args.eval_folder + 'evaluation.txt'
+	
+	eval_file = args.eval_folder + 'eval_' + str(int(round(max(all_epochs),0))) + 'eps' + datetime.datetime.now().strftime ("_%d_%m_%Y_") +  '.txt'
 	with open(eval_file, 'w') as out_f:
 		out_f.write('Results for {0}\n\n'.format(args.exp_name))
 		for l in res_dict:

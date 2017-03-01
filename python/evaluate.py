@@ -8,6 +8,7 @@ import argparse
 import random
 import json
 from multiprocessing import Pool
+import datetime
 
 '''Script that produces the Smatch output for CAMR, Boxer and Seq2seq produced AMRs'''
 
@@ -23,6 +24,7 @@ parser.add_argument('-range_words', nargs='+', type=int, default = [], help ='Se
 parser.add_argument('-roots_to_check', required = True, help = 'Root folder to check for output results')
 parser.add_argument('-prod_ext', default = '.seq.amr.restore', type=str, help="Ext of produced files")
 parser.add_argument('-gold_ext', default = '.txt', type=str, help="Ext of produced files")
+parser.add_argument('-num_gold_files', default = 5, type=int, help="Number of individual gold files (5 for LDC2)")
 
 args = parser.parse_args()
 
@@ -30,6 +32,8 @@ def combined_output_smatch(prod_ext, one_line, prod_dir):
 	total_gold = []
 	total_prod = []
 	res = False
+	added = 0
+	
 	for root1, dirs1, files1 in os.walk(prod_dir):
 		for f1 in files1:
 			for root2, dirs2, files2 in os.walk(args.g):
@@ -45,7 +49,9 @@ def combined_output_smatch(prod_ext, one_line, prod_dir):
 							gold_amrs = [x.rstrip() for x in open(os.path.join(root2, f2))]
 							total_prod += prod_amrs
 							total_gold += gold_amrs	
-	if res:
+							added += 1
+	
+	if res and added == args.num_gold_files:			#check if we found result and also the correct number of files for the result
 		uniq_id = random.randint(0, 10000)
 		prod_file = prod_dir + '/' + match_part_p
 		gold_file = args.g + match_part_g + '_' + str(uniq_id)
@@ -67,22 +73,19 @@ def combined_output_smatch(prod_ext, one_line, prod_dir):
 		#print 'F-combined {0}'.format(f_score)
 		return f_score, num_sen, res
 	else:
-		return 0, 0, res	
+		return 0, 0, False	
 			
 def prepare_data(ids):
 	dirs_to_check = os.walk(args.roots_to_check).next()[1]
-	
-	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.wiki.coref']
-	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref']
-	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
-	ids = ['.seq.amr.restore']
 	dict_file = args.eval_folder + 'res_dict.txt'
 	
 	model_type = []
+	all_epochs = []
 	for fol in dirs_to_check:
 		for idx, ident in enumerate(ids):
 			train_inst = fol.split('-')[-1]
-			ep_num = round(float(train_inst) / float(args.train_size),0)
+			ep_num = round(float(train_inst) / float(args.train_size),1)
+			all_epochs.append(ep_num)
 			idf = ident.split('.')[-1]
 			m_type = '{0} epochs ({1}) '.format(ep_num, idf)		
 			model_type.append(m_type)
@@ -101,7 +104,7 @@ def prepare_data(ids):
 		res_dict = create_res_dict(model_type)
 		print 'Started testing from scratch'	
 	
-	return model_type, gold_ids, gold_files, res_dict, dirs_to_check	
+	return model_type, gold_ids, gold_files, res_dict, dirs_to_check, all_epochs	
 
 
 def get_gold_ids(root):
@@ -168,7 +171,6 @@ def evaluate(entry, ident, model, gold_ids, gold_files, res_dict):
 							gold_f = os.path.join(args.g, get_gold_file(idn, gold_files))
 							
 							if not args.range_sen and not args.range_words: # the normal output
-								print produced_f, gold_f
 								os_call = 'python ~/Documents/amr_Rik/Seq2seq/src/python/smatch_2.0.2/smatch.py -r {3} {2} -f {0} {1}'.format(produced_f, gold_f, one_line, args.rs)
 								f_score, num_sen = do_smatch(os_call, False)
 								res_dict[model].append([idn, f_score, int(num_sen)])
@@ -213,7 +215,7 @@ def add_average(d):
 	
 	return d	
 
-def print_nice_output(res_dict, gold_ids, model_type):
+def print_nice_output(res_dict, gold_ids, model_type, all_epochs):
 	if 'average' not in gold_ids:
 		gold_ids.append('average')		#add for average
 	gold_ids = list(set(gold_ids))
@@ -239,8 +241,9 @@ def print_nice_output(res_dict, gold_ids, model_type):
 	printer = [y[1] for y in sorted([[float(z.split()[0]), z] for z in print_list], key = lambda x : x[0])] #sort by number of epochs
 	for p in printer: print p
 	
-	eval_file = args.eval_folder + 'evaluation.txt'
+	eval_file = args.eval_folder + 'eval_' + str(int(round(max(all_epochs),0))) + 'eps' + datetime.datetime.now().strftime ("_%d_%m_%Y_") +  '.txt'
 	with open(eval_file, 'w') as out_f:
+		out_f.write('Results for', args.exp_name + ':\n\n')
 		for p in printer:
 			out_f.write(p.strip() + '\n')
 	out_f.close()		
@@ -250,11 +253,11 @@ def print_nice_output(res_dict, gold_ids, model_type):
 		
 if __name__ == '__main__':
 	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.wiki.coref']
-	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
+	ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
 	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki']
-	ids = ['.seq.amr.restore']
+	#ids = ['.seq.amr.restore']
 	
-	model_type, gold_ids, gold_files, res_dict, dirs_to_check = prepare_data(ids)
+	model_type, gold_ids, gold_files, res_dict, dirs_to_check, all_epochs = prepare_data(ids)
 	counter = 0
 	print 'Testing {0} dirs\n'.format(len(dirs_to_check))
 	for idx, root in enumerate(dirs_to_check):
@@ -265,7 +268,7 @@ if __name__ == '__main__':
 			
 			counter += 1
 	
-	res_list = print_nice_output(res_dict, gold_ids, model_type)
+	res_list = print_nice_output(res_dict, gold_ids, model_type, all_epochs)
 	
 	#save smatch results to dict
 	

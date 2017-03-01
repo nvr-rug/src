@@ -66,10 +66,19 @@ def add_wikification(in_file, sent_file, log_file):
 	log_file.write('\tDoing Wikification...\n')
 	wiki_file = in_file + '.wiki'
 	wikification_seq2seq.wikify_pipeline_output(in_file, 'dbpedia', sent_file, log_file)
-	log_file.write('\tValidating again...\n')
-	check_valid(wiki_file, True, log_file)
 	
-	return wiki_file
+	num_sents = len([x for x in open(sent_file,'r')])	#for checking whether Wikification succeeded
+	num_wiki = len([x for x in open(wiki_file,'r')])
+	
+	if num_sents != num_wiki:
+		log_file.write('\t\tWikification failed for some reason (length {0} instead of {1})\n\t\tSave file as backup with wrong extension, no validating\n')
+		os.system('mv {0} {1}'.format(wiki_file, wiki_file.replace('.wiki','.failed_wiki')))
+		return wiki_file, False
+	else:
+		log_file.write('\tValidating again...\n')
+		check_valid(wiki_file, True, log_file)
+	
+		return wiki_file, True	
 
 
 def add_coreference(in_file, log_file, ext):
@@ -128,17 +137,20 @@ def process_dir(cp_direc):
 						
 						# first do postprocessing steps individually
 						
-						restore_file 	= restore_amr(f, output_direc, file_path, f_out)
-						prune_file 		= do_pruning(restore_file, f_out)
-						wiki_file 		= add_wikification(restore_file, sent_file, f_out)
-						coref_file 		= add_coreference(restore_file, f_out, '.coref')
+						restore_file 		= restore_amr(f, output_direc, file_path, f_out)
+						prune_file 			= do_pruning(restore_file, f_out)
+						wiki_file, success 	= add_wikification(restore_file, sent_file, f_out)
+						coref_file 			= add_coreference(restore_file, f_out, '.coref')
 						
 						# then add all postprocessing steps together, starting at the pruning
 						
 						f_out.write('\tDo all postprocessing steps...\n')
 						
-						wiki_file_pruned 		= add_wikification(prune_file, sent_file, f_out)
-						coref_file_wiki_pruned 	= add_coreference(wiki_file_pruned, f_out, '.coref.all')
+						wiki_file_pruned, success = add_wikification(prune_file, sent_file, f_out)
+						if success:
+							coref_file_wiki_pruned 	  = add_coreference(wiki_file_pruned, f_out, '.coref.all')
+						else:
+							f_out.write('\tWikification failed, not doing coreference on top of it\n')	
 						
 						f_out.write('\tDone processing!\n')
 		f_out.close()				

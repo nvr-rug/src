@@ -17,7 +17,7 @@ args = parser.parse_args()
 
 if __name__ == '__main__':
 	if not os.path.isfile(args.f):
-		raise ValueError("File doesn't exist")
+		raise ValueError("Config file doesn't exist")
 	
 	checkpoint_dir = args.e + 'checkpoints/'
 	output_dir =  args.e + 'output/'
