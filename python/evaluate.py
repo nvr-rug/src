@@ -243,7 +243,7 @@ def print_nice_output(res_dict, gold_ids, model_type, all_epochs):
 	
 	eval_file = args.eval_folder + 'eval_' + str(int(round(max(all_epochs),0))) + 'eps' + datetime.datetime.now().strftime ("_%d_%m_%Y_") +  '.txt'
 	with open(eval_file, 'w') as out_f:
-		out_f.write('Results for', args.exp_name + ':\n\n')
+		out_f.write('Results for ' + args.exp_name + ':\n\n')
 		for p in printer:
 			out_f.write(p.strip() + '\n')
 	out_f.close()		
