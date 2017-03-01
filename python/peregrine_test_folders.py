@@ -16,6 +16,9 @@ args = parser.parse_args()
 
 
 if __name__ == '__main__':
+	if not os.path.isfile(args.f):
+		raise ValueError("File doesn't exist")
+	
 	checkpoint_dir = args.e + 'checkpoints/'
 	output_dir =  args.e + 'output/'
 	
@@ -30,6 +33,5 @@ if __name__ == '__main__':
 			if num_o == num_c:
 				output = True	#output file already exists, 
 				break
-		if not output:			# no output folder exists, call testing script		
-			script_call = 'sbatch -J {0} /home/p266548/Documents/amr_Rik/Seq2seq/src/scripts/test.sh {1} per {2}/'.format('ep-' + num_c,args.f, c)
-			subprocess.call(['sbatch', '-J', 'ep-' + num_c , '/home/p266548/Documents/amr_Rik/Seq2seq/src/scripts/test.sh', args.f, 'per', c + '/'])	
+		if not output:			# no output folder exists, call testing script with sbatch		
+			subprocess.call(['sbatch', '-J', 'e' + num_c , '/home/p266548/Documents/amr_Rik/Seq2seq/src/scripts/test.sh', args.f, 'per', c + '/'])	
