@@ -36,6 +36,7 @@ import sys
 import time
 import timeit
 import argparse
+import json
 from multiprocessing import Pool
 from multiprocessing import Lock
 
@@ -67,8 +68,8 @@ tf.app.flags.DEFINE_integer("max_checkpoints", 100, "Maximum number of checkpoin
 tf.app.flags.DEFINE_integer("max_threads", 5, "Maximum number of files we do in parallel")
 tf.app.flags.DEFINE_integer("size", 400, "Size of each model layer.")
 tf.app.flags.DEFINE_integer("num_layers", 1, "Number of layers in the model.")
-tf.app.flags.DEFINE_integer("en_vocab_size", 140, "English vocabulary size.")
-tf.app.flags.DEFINE_integer("fr_vocab_size", 140, "French vocabulary size.")
+tf.app.flags.DEFINE_integer("en_vocab_size", 10, "English vocabulary size.")
+tf.app.flags.DEFINE_integer("fr_vocab_size", 10, "French vocabulary size.")
 tf.app.flags.DEFINE_integer("min_vocab", 1, "Min frequency of vocab items to be added in vocabulary")
 tf.app.flags.DEFINE_string("data_dir", "/tmp", "Data directory")
 tf.app.flags.DEFINE_string("train_dir", "/tmp", "Training directory.")
@@ -219,13 +220,21 @@ def create_model_train(session, forward_only):
     if ckpt and os.path.exists(restore_path):
       print("Reading model parameters from %s" % ckpt.model_checkpoint_path)
       model.saver.restore(session, restore_path)
+      if os.path.isfile(FLAGS.checkpoint_dest + 'perplexity_list.json'):
+		  with open(FLAGS.checkpoint_dest + 'perplexity_list.json', 'r') as in_f:
+			  ppxy = json.load(in_f)
+		  in_f.close()	  
+      else:
+		  raise ValueError("Training from checkpoint but no perplexity file found")  			  
     else:
       print("Created model with fresh parameters.")
       session.run(tf.initialize_all_variables())
+      ppxy = []
   else:
     print("Created model with fresh parameters.")
-    session.run(tf.initialize_all_variables())  
-  return model
+    session.run(tf.initialize_all_variables())
+    ppxy = []  
+  return model, ppxy
   
  
   #print ('ckpt:', ckpt.model_checkpoint_path)
@@ -276,7 +285,7 @@ def train():
   with tf.Session() as sess:
     # Create model.
     print("Creating %d layers of %d units." % (FLAGS.num_layers, FLAGS.size))
-    model = create_model_train(sess, False)
+    model, ppxy = create_model_train(sess, False)
     # Read data into buckets and compute their sizes.
     print ("Reading development and training data (limit: %d)."
            % FLAGS.max_train_data_size)
@@ -346,6 +355,13 @@ def train():
           print (str(float((time_now - time_prev)) / float(60)),'minutes for testing', str(FLAGS.eps_per_checkpoint),'epochs of ' + str(int(train_total_size)) + ' instances')
           time_prev = timeit.default_timer()
           
+          #save perplexity information (training and dev) to file
+          
+          ppxy.append([perplexity, eval_ppx, current_step, epochs])
+          with open(FLAGS.checkpoint_dest + 'perplexity_list.json', 'w') as out_f:
+            json.dump(ppxy, out_f)
+          out_f.close()  
+           		
           if cps_counter % FLAGS.save_folder_checkpoint == 0:
               print ('Saving folder for step {0} and epoch {1}'.format(current_step, epochs))
               save_folder(model, FLAGS.batch_size)

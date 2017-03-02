@@ -123,10 +123,10 @@ def process_dir(cp_direc):
 		log_file = output_direc +'/log.txt'
 		print 'Starting testing {0}...time: {1}'.format(cp_direc,str(datetime.now()))
 		with open(log_file, 'w') as f_out:
-			#f_out.write('Starting testing {0}...\n'.format(cp_direc))
-			#test_call = 'python ' + args.python_path + 'translate.py --multiple_files --decode --test_folder {5} --out_folder {4} --data_dir {0} --train_dir {1} --size={2} --num_layers={3} --log_file {6} --input_ext {7} --output_ext {8} --en_vocab_size {9} --fr_vocab_size {10} --test_ext {7}'.format(args.df, cp_direc, args.size, args.layers, output_direc, args.f, log_file, args.input_ext, args.output_ext, args.en_vocab_size, args.fr_vocab_size)
-			#os.system(test_call)	#do python testing with file
-			#f_out.write('Testing complete!\n')
+			f_out.write('Starting testing {0}...\n'.format(cp_direc))
+			test_call = 'python ' + args.python_path + 'translate.py --multiple_files --decode --test_folder {5} --out_folder {4} --data_dir {0} --train_dir {1} --size={2} --num_layers={3} --log_file {6} --input_ext {7} --output_ext {8} --en_vocab_size {9} --fr_vocab_size {10} --test_ext {7}'.format(args.df, cp_direc, args.size, args.layers, output_direc, args.f, log_file, args.input_ext, args.output_ext, args.en_vocab_size, args.fr_vocab_size)
+			os.system(test_call)	#do python testing with file
+			f_out.write('Testing complete!\n')
 			
 			for root, dirs, files in os.walk(output_direc):
 				for f in files:
