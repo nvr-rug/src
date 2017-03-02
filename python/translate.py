@@ -77,7 +77,7 @@ tf.app.flags.DEFINE_integer("max_train_data_size", 0,
                             "Limit on the size of training data (0: no limit).")
 tf.app.flags.DEFINE_integer("save_folder_checkpoint", 1,
                             "How often do we create a model folder per checkpoint file (1 is every checkpoint, 2 is every other checkpoint, 10 is once in 10 checkpoints, etc")
-tf.app.flags.DEFINE_integer("eps_per_checkpoint", 5,
+tf.app.flags.DEFINE_integer("eps_per_checkpoint", 1,
                             "How many training epochs to do per checkpoint.")
 tf.app.flags.DEFINE_boolean("decode", False,
                             "Set to True for interactive decoding.")
@@ -356,7 +356,7 @@ def train():
           time_prev = timeit.default_timer()
           
           #save perplexity information (training and dev) to file
-          
+          print ('Print perplexities to json file')
           ppxy.append([perplexity, eval_ppx, current_step, epochs])
           with open(FLAGS.checkpoint_dest + 'perplexity_list.json', 'w') as out_f:
             json.dump(ppxy, out_f)
