@@ -225,7 +225,8 @@ def create_model_train(session, forward_only):
 			  ppxy = json.load(in_f)
 		  in_f.close()	  
       else:
-		  raise ValueError("Training from checkpoint but no perplexity file found")  			  
+		  print("Training from checkpoint but no perplexity file found")
+		  ppxy = []  			  
     else:
       print("Created model with fresh parameters.")
       session.run(tf.initialize_all_variables())
@@ -356,7 +357,7 @@ def train():
           time_prev = timeit.default_timer()
           
           #save perplexity information (training and dev) to file
-          print ('Print perplexities to json file')
+          #print ('Print perplexities to json file')
           ppxy.append([perplexity, eval_ppx, current_step, epochs])
           with open(FLAGS.checkpoint_dest + 'perplexity_list.json', 'w') as out_f:
             json.dump(ppxy, out_f)
