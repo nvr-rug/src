@@ -7,9 +7,21 @@ import sys,re,argparse, os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", required=True, type=str, help="directory that contains amrs / sentences to be processed")
+parser.add_argument("-brackets", default = '', type=str, help="Do we see multiple brackets as a single character?")
 parser.add_argument("-input_ext", default = '.sent',  required=False, type=str, help="Input extension of AMRs (default .sent)")
 parser.add_argument("-output_ext", default = '.tf', required=False, type=str, help="Output extension of AMRs (default .tf)")
 args = parser.parse_args()
+
+
+def bracket_lines(lines):
+	new_lines = []
+	for l in lines:
+		while ') )' in l:
+			l = l.replace(') )','))')
+		add_l = " ".join(l.split()) #remove double spaces
+		new_lines.append(add_l)
+	
+	return new_lines		
 
 
 def get_file_lines(f_path):
@@ -87,6 +99,8 @@ if __name__ == '__main__':
 			if f.endswith(args.output_ext) and 'char' not in f :				#keep structure words as "chars" for .tf files
 				file_lines  = get_file_lines(f_path)
 				fixed_lines = get_fixed_lines(file_lines)
+				if args.brackets:
+					fixed_lines = bracket_lines(fixed_lines)
 				
 				out_f =  f_path.replace(args.output_ext,'.char' + args.output_ext)
 				
