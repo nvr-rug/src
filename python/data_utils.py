@@ -78,7 +78,8 @@ def create_vocabulary(vocabulary_path, data_path, max_vocabulary_size,
         counter += 1
         if counter % 100000 == 0:
           print("  processing line %d" % counter)
-        tokens = tokenizer(line) if tokenizer else basic_tokenizer(line)
+        #tokens = tokenizer(line) if tokenizer else basic_tokenizer(line)
+        tokens = line.strip().split()
         for w in tokens:
           word = re.sub(_DIGIT_RE, b"0", w) if normalize_digits else w
           if word in vocab:
@@ -154,10 +155,11 @@ def sentence_to_token_ids(sentence, vocabulary,
     a list of integers, the token-ids for the sentence.
   """
 
-  if tokenizer:
-    words = tokenizer(sentence)
-  else:
-    words = basic_tokenizer(sentence)
+  #if tokenizer:
+  #  words = tokenizer(sentence)
+  #else:
+  #  words = basic_tokenizer(sentence)
+  words = sentence.strip().split()
   if not normalize_digits:
     return [vocabulary.get(w, UNK_ID) for w in words]
   # Normalize digits by 0 before looking words up in the vocabulary.

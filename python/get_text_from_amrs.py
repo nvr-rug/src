@@ -17,6 +17,7 @@ args = parser.parse_args()
 def process_line(line):
     fields = line.split()
     if fields[0] == '#' and (fields[1] == '::snt' or fields[1] == '::tok'):
+    #if fields[0] == '#' and (fields[1] == '::tok'):
         # Skip first (sent. id) and last (?) fields
         return ' '.join(fields[2:])
 

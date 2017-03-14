@@ -165,7 +165,9 @@ def get_best_match(instance1, attribute1, relation1,
     # initialize best match mapping
     # the ith entry is the node index in AMR 2 which maps to the ith node in AMR 1
     best_mapping = [-1] * len(instance1)
-    for i in range(0, iteration_num):
+    #print 'best_mapping', best_mapping
+
+    for i in range(0, iteration_num):   #number of restarts
         if veryVerbose:
             print >> DEBUG_LOG, "Iteration", i
         if i == 0:
@@ -235,14 +237,20 @@ def compute_pool(instance1, attribute1, relation1,
     """
     candidate_mapping = []
     weight_dict = {}
+    #print 'instance1', instance1
+    #print 'instance2', instance2
     for i in range(0, len(instance1)):
         # each candidate mapping is a set of node indices
         candidate_mapping.append(set())
         if doinstance:
             for j in range(0, len(instance2)):
                 # if both triples are instance triples and have the same value
+                # get nodes that can possibly match
                 if normalize(instance1[i][0]) == normalize(instance2[j][0]) and \
                    normalize(instance1[i][2]) == normalize(instance2[j][2]):
+                    #print 'match:\n'
+                    #print instance1[i][0], instance1[j][0]
+                    #print instance1[i][2], instance1[i][2],'\n'
                     # get node index by stripping the prefix
                     node1_index = int(instance1[i][1][len(prefix1):])
                     node2_index = int(instance2[j][1][len(prefix2):])
@@ -253,7 +261,7 @@ def compute_pool(instance1, attribute1, relation1,
                         weight_dict[node_pair][-1] += 1
                     else:
                         weight_dict[node_pair] = {}
-                        weight_dict[node_pair][-1] = 1
+                        weight_dict[node_pair][-1] = 1                  
     if doattribute:
         for i in range(0, len(attribute1)):
             for j in range(0, len(attribute2)):
@@ -270,6 +278,7 @@ def compute_pool(instance1, attribute1, relation1,
                     else:
                         weight_dict[node_pair] = {}
                         weight_dict[node_pair][-1] = 1
+
     if dorelation:
         for i in range(0, len(relation1)):
             for j in range(0, len(relation2)):
@@ -318,6 +327,11 @@ def compute_pool(instance1, attribute1, relation1,
                         else:
                             weight_dict[node_pair1] = {}
                             weight_dict[node_pair1][-1] = 1
+    #print 'len weight dict: {0}'.format(len(weight_dict))
+    #print weight_dict,'\n\n'
+    #print 'len candidate mapping: {0}'.format(len(candidate_mapping))
+    #print candidate_mapping ,'\n' 
+    
     return candidate_mapping, weight_dict
 
 
@@ -810,6 +824,9 @@ def main(arguments):
         amr2.rename_node(prefix2)
         (instance1, attributes1, relation1) = amr1.get_triples()
         (instance2, attributes2, relation2) = amr2.get_triples()
+        print 'inst',instance2,'\n\n\n'
+        print 'att',attributes2,'\n'
+        print 'relation',relation2,'\n'
         if verbose:
             # print parse results of two AMRs
             print >> DEBUG_LOG, "AMR pair", sent_num

@@ -187,15 +187,30 @@ def do_extra_steps(line):
     new_line = new_line.replace(':polarity 100',':polarity -')
     return new_line
 
+
+def undo_brackets(line, replace_char):
+	new_line = '(' + line.strip() + ')'							#restore opening and closing brackets
+	if replace_char:
+		new_line = re.sub(r'\*\d(\d+)?\(\*',r'(',new_line)		#change *1)* to ) or *5(* to (
+		new_line = re.sub(r'\*\d(\d+)?\)\*',r')',new_line)
+	else:
+		new_line = re.sub(r'\*\d(\d+)?\(\*','',new_line)		#remove *1)* and *5(*
+		new_line = re.sub(r'\*\d(\d+)?\)\*','',new_line)	
+	return new_line
+
+
 global ggg
 ggg = 0
 
 for line in open(sys.argv[1],'r'):
     ggg += 1
     line = line.replace(' ','').replace('+',' ').replace(':polarity-',':polarity100')
-    
-    #if 'polarity' in line:
-	#	print line
+    #print sys.argv[2]
+    if len(sys.argv) > 2:
+		if sys.argv[2].strip() == 'brack':
+			line = undo_brackets(line, True)
+		elif sys.argv[2].strip() == 'brackboth':	
+			line = undo_brackets(line, False)
     if line[-1] != ')':                                 #skip dangling edges
         line = ")".join(line.split(')')[:-1]) + ')'
     

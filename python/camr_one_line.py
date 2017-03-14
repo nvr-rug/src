@@ -6,7 +6,7 @@ import re
 '''Change CAMR file to one-line AMRs'''
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-f", required=True, type=str, help="sentence file that needs feature")
+parser.add_argument("-f", required=True, type=str, help="sentence file that needs to be single")
 args = parser.parse_args()
 
 if __name__ == '__main__':

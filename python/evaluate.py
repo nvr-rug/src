@@ -99,7 +99,10 @@ def prepare_data(ids):
 		with open(dict_file, 'r') as in_f:
 			res_dict = json.load(in_f)
 		in_f.close()
-		print 'Read in dict with len {0}'.format(len(res_dict))	
+		print 'Read in dict with len {0}'.format(len(res_dict))
+		for idn in model_type:
+			if idn not in res_dict:
+				res_dict[idn] = []
 	else:	
 		res_dict = create_res_dict(model_type)
 		print 'Started testing from scratch'	

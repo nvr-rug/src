@@ -7,21 +7,28 @@ import sys,re,argparse, os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", required=True, type=str, help="directory that contains amrs / sentences to be processed")
-parser.add_argument("-brackets", default = '', type=str, help="Do we see multiple brackets as a single character?")
+#parser.add_argument("-brackets", default = '', type=str, help="Do we see multiple brackets as a single character?")
 parser.add_argument("-input_ext", default = '.sent',  required=False, type=str, help="Input extension of AMRs (default .sent)")
 parser.add_argument("-output_ext", default = '.tf', required=False, type=str, help="Output extension of AMRs (default .tf)")
 args = parser.parse_args()
 
 
-def bracket_lines(lines):
-	new_lines = []
-	for l in lines:
-		while ') )' in l:
-			l = l.replace(') )','))')
-		add_l = " ".join(l.split()) #remove double spaces
-		new_lines.append(add_l)
+#def bracket_lines(lines):
+	#new_lines = []
+	#for l in lines:
+		#while ') )' in l:
+			#l = l.replace(') )','))')
+		#add_l = " ".join(l.split()) #remove double spaces
+		#new_lines.append(add_l)
 	
-	return new_lines		
+	#return new_lines		
+
+
+def write_to_file(lst, f):
+	with open(f, 'w') as out:
+		for l in lst:
+			out.write(l.strip() + '\n')
+	out.close()
 
 
 def get_file_lines(f_path):
@@ -91,35 +98,48 @@ def process_pos_tagged(f_path):
 	
 	return fixed_lines					
 
+
+def set_brack_lines(lst): 
+	new_list = []
+	for l in lst:
+		new_l = re.sub(r'\* (\d) \( \*', r'*\1(*',l)
+		new_l = re.sub(r'\* (\d) \) \*', r'*\1)*',new_l)
+
+		new_l = re.sub(r'\* (\d) (\d) \( \*', r'*\1\2(*',new_l)
+		new_l = re.sub(r'\* (\d) (\d) \) \*', r'*\1\2)*',new_l)
+
+		new_l = re.sub(r'\* (\d) (\d) (\d) \( \*', r'*\1\2\3(*',new_l)
+		new_l = re.sub(r'\* (\d) (\d) (\d) \) \*', r'*\1\2\3)*',new_l)
+		
+		new_list.append(new_l)
+	return new_list	
+
 	
 if __name__ == '__main__':
 	for root, dirs, files in os.walk(args.f):
 		for f in files:							
 			f_path = os.path.join(root, f)		
-			if f.endswith(args.output_ext) and 'char' not in f :				#keep structure words as "chars" for .tf files
-				file_lines  = get_file_lines(f_path)
-				fixed_lines = get_fixed_lines(file_lines)
-				if args.brackets:
-					fixed_lines = bracket_lines(fixed_lines)
+			if (f.endswith(args.input_ext) or f.endswith(args.output_ext)) and '.char' not in f:
+				if f.endswith('.tf'):				#keep structure words as "chars" for .tf files
+					file_lines  = get_file_lines(f_path)
+					fixed_lines = get_fixed_lines(file_lines)
+					out_f =  f_path.replace('.tf','.char.tf')
+					write_to_file(out_f, fixed_lines)
+				elif f.endswith('.tf.brack') or f.endswith('.tf.brackboth'):							#bracketed files should keep *1(* etc as single character
+					file_lines  = get_file_lines(f_path)
+					fixed_lines = get_fixed_lines(file_lines)
+					brack_lines = set_brack_lines(fixed_lines)
+					out_f =  f_path.replace('.tf.brack','.char.tf.brack')
+					write_to_file(out_f, brack_lines)	
 				
-				out_f =  f_path.replace(args.output_ext,'.char' + args.output_ext)
-				
-				with open(out_f, 'w') as out:
-					for l in fixed_lines:
-						out.write(l.strip() + '\n')
-				out.close()
-			
-			elif '.pos' in f and '.sent' in f and 'char' not in f:						#different approach for pos-tagged sentences
-				print 'POS tagged process'
-				fixed_lines = process_pos_tagged(f_path)
-				
-				out_f =  f_path.replace(args.input_ext,'.char' + args.input_ext)
-				
-				with open(out_f, 'w') as out:
-					for l in fixed_lines:
-						out.write(l.strip() + '\n')
-				out.close()
-					
-			elif f.endswith(args.input_ext) and 'char' not in f:						#do normal char-level approach for sentence files
-				os_call =  'sed -e "s/\ /+/g"  -e "s/./&\ /g" < {0} > {1}'.format(f_path, f_path.replace(args.input_ext,'.char' + args.input_ext))
-				os.system(os_call)
+				elif f.endswith('.sent.pos'):					#different approach for pos-tagged sentences
+					print 'POS tagged process'
+					fixed_lines = process_pos_tagged(f_path)
+					out_f =  f_path.replace('sent.pos','.char.sent.pos')
+					write_to_file(out_f, fixed_lines)
+						
+				elif f.endswith('.sent'):					#do normal char-level approach for sentence files
+					os_call =  'sed -e "s/\ /+/g"  -e "s/./&\ /g" < {0} > {1}'.format(f_path, f_path.replace('.sent','char.sent'))
+					os.system(os_call)
+				else:
+					print 'Both extensions not found, skipping {0}'.format(f)	
