@@ -296,7 +296,7 @@ def train():
     train_total_size = float(sum(train_bucket_sizes))
     print ('Total train size: {0}'.format(train_total_size))
     print ('Batch size: {0}'.format(FLAGS.batch_size))
-    #raise ValueError ('Done')
+    
     # A bucket scale is a list of increasing numbers from 0 to 1 that we'll use
     # to select a bucket. Length of [scale[i], scale[i+1]] is proportional to
     # the size if i-th training bucket, as used later.
@@ -310,6 +310,7 @@ def train():
     time_prev = timeit.default_timer()
     epochs = 0
     cps_counter = 0
+    print tf.trainable_variables()
     while True:
       # Choose a bucket according to data distribution. We pick a random number
       # in [0, 1] and use the corresponding interval in train_buckets_scale.
