@@ -310,7 +310,7 @@ def train():
     time_prev = timeit.default_timer()
     epochs = 0
     cps_counter = 0
-    print tf.trainable_variables()
+    print (tf.trainable_variables())
     while True:
       # Choose a bucket according to data distribution. We pick a random number
       # in [0, 1] and use the corresponding interval in train_buckets_scale.
