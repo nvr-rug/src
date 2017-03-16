@@ -311,7 +311,7 @@ def train():
     epochs = 0
     cps_counter = 0
     for var in tf.trainable_variables():
-		print (var)
+		print (var.name)
     while True:
       # Choose a bucket according to data distribution. We pick a random number
       # in [0, 1] and use the corresponding interval in train_buckets_scale.
