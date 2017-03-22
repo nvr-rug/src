@@ -95,6 +95,8 @@ tf.app.flags.DEFINE_string("test_ext", ".char.sent", "Extension of the to-be-tes
 tf.app.flags.DEFINE_string("prod_ext", ".seq.amr", "Extension of the produced files (default .seq.amr")
 tf.app.flags.DEFINE_string("checkpoint_dest", 'false', "Destination of checkpoints (required)")
 tf.app.flags.DEFINE_string("log_file", '', "Logfile to write output to")
+tf.app.flags.DEFINE_integer("stop_training", 0,
+                            "Stop training after X epochs without improvement (0 means going indefinitely)")
 
 ## testing
 
@@ -169,6 +171,19 @@ def read_data(source_path, target_path, max_size=None):
   #  bytes_mem = process.memory_info().rss
    # print ('Step',str(current_step) + ':', 'mem usage:', str(bytes_mem/(1000*1000*1000)), 'GB')
 
+
+def get_restore_path(ckpt_path):
+	if ckpt_path.count('/') > 2:					#peregrine
+		restore_path = ckpt_path
+	elif FLAGS.train_dir.endswith('/'):				#zardoz/johan, forgot slash
+		restore_path = FLAGS.train_dir + ckpt.path
+	else:
+		restore_path = FLAGS.train_dir + '/' + ckpt_path
+	
+	print ('Restore path: {0}'.format(restore_path))
+	return restore_path	
+
+
 def create_model_test(session, forward_only):
   """Create translation model and initialize or load parameters in session."""
   model = seq2seq_model.Seq2SeqModel(
@@ -182,14 +197,8 @@ def create_model_test(session, forward_only):
   
   print ('model path:',ckpt.model_checkpoint_path)
   
-  if FLAGS.train_dir.endswith('/'):
-    restore_path = FLAGS.train_dir + ckpt.model_checkpoint_path
-  else:
-    restore_path = FLAGS.train_dir + '/' + ckpt.model_checkpoint_path
+  restore_path = get_restore_path(ckpt.model_checkpoint_path)
   
-  #restore_path = ckpt.model_checkpoint_path
-  
-  print ('restore_path', restore_path)
   if ckpt and os.path.exists(restore_path):
     print("Reading model parameters from %s" % ckpt.model_checkpoint_path)
     model.saver.restore(session, restore_path)
@@ -209,24 +218,19 @@ def create_model_train(session, forward_only):
   ckpt = tf.train.get_checkpoint_state(FLAGS.train_dir)
   print ('Creating model...')
   if ckpt:
-    if FLAGS.train_dir.endswith('/'):
-      restore_path = FLAGS.train_dir + ckpt.model_checkpoint_path
-    else:
-      restore_path = FLAGS.train_dir + '/' + ckpt.model_checkpoint_path
-      
-    #restore_path = ckpt.model_checkpoint_path
+    restore_path = get_restore_path(ckpt.model_checkpoint_path)
       
     print ('restore_path', restore_path)
     if ckpt and os.path.exists(restore_path):
       print("Reading model parameters from %s" % ckpt.model_checkpoint_path)
       model.saver.restore(session, restore_path)
       if os.path.isfile(FLAGS.checkpoint_dest + 'perplexity_list.json'):
-		  with open(FLAGS.checkpoint_dest + 'perplexity_list.json', 'r') as in_f:
-			  ppxy = json.load(in_f)
-		  in_f.close()	  
+          with open(FLAGS.checkpoint_dest + 'perplexity_list.json', 'r') as in_f:
+              ppxy = json.load(in_f)
+          in_f.close()    
       else:
-		  print("Training from checkpoint but no perplexity file found")
-		  ppxy = []  			  
+          print("Training from checkpoint but no perplexity file found")
+          ppxy = []               
     else:
       print("Created model with fresh parameters.")
       session.run(tf.initialize_all_variables())
@@ -310,9 +314,12 @@ def train():
     time_prev = timeit.default_timer()
     epochs = 0
     cps_counter = 0
-    for var in tf.trainable_variables():
-		print (var.name)
-    while True:
+    previous_ppx = 100000000
+    no_improvement = 0
+    keep_training = True
+    #for var in tf.trainable_variables():
+    #   print (var.name)
+    while keep_training:
       # Choose a bucket according to data distribution. We pick a random number
       # in [0, 1] and use the corresponding interval in train_buckets_scale.
       #print ('Current step {0}'.format(current_step))
@@ -336,15 +343,15 @@ def train():
         print ('Saving checkpoint for epochs {0} step {1} and instances seen {2}'.format(epochs, current_step, instances_seen))
         # Print statistics for the previous epoch.
         perplexity = math.exp(loss) if loss < 300 else float('inf')
-        print ("Epochs %d Instances seen %d learning rate %.4f perplexity "
-               "%.2f" % (epochs, instances_seen, model.learning_rate.eval(), perplexity))
+        #print ("Epochs %d Instances seen %d learning rate %.4f perplexity "
+               #"%.2f" % (epochs, instances_seen, model.learning_rate.eval(), perplexity))
         # Decrease learning rate if no improvement was seen over last 3 times.
         if len(previous_losses) > 2 and loss > max(previous_losses[-3:]):
           sess.run(model.learning_rate_decay_op)
         previous_losses.append(loss)
         # Save checkpoint and zero timer and loss.
         checkpoint_path = os.path.join(FLAGS.train_dir, "translate.ckpt")
-        model.saver.save(sess, checkpoint_path, global_step=model.global_step.eval() * FLAGS.batch_size)
+        #model.saver.save(sess, checkpoint_path, global_step=model.global_step.eval() * FLAGS.batch_size)
         loss = 0.0
         # Run evals on development set and print their perplexity.
         for bucket_id in xrange(len(_buckets)):
@@ -353,9 +360,9 @@ def train():
           _, eval_loss, _ = model.step(sess, encoder_inputs, decoder_inputs,
                                        target_weights, bucket_id, True)
           eval_ppx = math.exp(eval_loss) if eval_loss < 300 else float('inf')
-          print("  eval: bucket %d perplexity %.2f" % (bucket_id, eval_ppx))
+          #print("  eval: bucket %d perplexity %.2f" % (bucket_id, eval_ppx))
           time_now = timeit.default_timer()
-          print (str(float((time_now - time_prev)) / float(60)),'minutes for testing', str(FLAGS.eps_per_checkpoint),'epochs of ' + str(int(train_total_size)) + ' instances')
+          #print (str(float((time_now - time_prev)) / float(60)),'minutes for testing', str(FLAGS.eps_per_checkpoint),'epochs of ' + str(int(train_total_size)) + ' instances')
           time_prev = timeit.default_timer()
           
           #save perplexity information (training and dev) to file
@@ -364,12 +371,28 @@ def train():
           with open(FLAGS.checkpoint_dest + 'perplexity_list.json', 'w') as out_f:
             json.dump(ppxy, out_f)
           out_f.close()  
-           		
-          if cps_counter % FLAGS.save_folder_checkpoint == 0:
-              print ('Saving folder for step {0} and epoch {1}'.format(current_step, epochs))
-              save_folder(model, FLAGS.batch_size)
-              cps_counter = 0
-          
+                
+          #if cps_counter % FLAGS.save_folder_checkpoint == 0:
+          #    print ('Saving folder for step {0} and epoch {1}'.format(current_step, epochs))
+          #    save_folder(model, FLAGS.batch_size)
+          #    cps_counter = 0
+        
+        if round(eval_ppx,2) < previous_ppx:        #keep track of number of times we did not improve
+            no_improvement = 0
+            print ('Improvement, {0} vs {1}'.format(round(eval_ppx,2), previous_ppx))
+        else:
+            no_improvement += 1
+            print ('No improvement, {0} vs {1}'.format(round(eval_ppx,2), previous_ppx))
+        
+        print('stop_training = {0}'.format(int(FLAGS.stop_training)))
+        if no_improvement >= int(FLAGS.stop_training) and int(FLAGS.stop_training) > 0:
+            print ('Stop training, no_improvement = {0}'.format(no_improvement))
+            keep_training = False       #stop training after X epochs of no improvement
+        
+        print ('Current no improvement count {0}'.format(no_improvement))
+        previous_ppx = round(eval_ppx,2)
+                  
+        
         sys.stdout.flush()
       instances_seen += FLAGS.batch_size
 
