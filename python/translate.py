@@ -176,7 +176,7 @@ def get_restore_path(ckpt_path):
 	if ckpt_path.count('/') > 2:					#peregrine
 		restore_path = ckpt_path
 	elif FLAGS.train_dir.endswith('/'):				#zardoz/johan, forgot slash
-		restore_path = FLAGS.train_dir + ckpt.path
+		restore_path = FLAGS.train_dir + ckpt_path
 	else:
 		restore_path = FLAGS.train_dir + '/' + ckpt_path
 	
