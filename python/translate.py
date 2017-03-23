@@ -351,7 +351,7 @@ def train():
         previous_losses.append(loss)
         # Save checkpoint and zero timer and loss.
         checkpoint_path = os.path.join(FLAGS.train_dir, "translate.ckpt")
-        #model.saver.save(sess, checkpoint_path, global_step=model.global_step.eval() * FLAGS.batch_size)
+        model.saver.save(sess, checkpoint_path, global_step=model.global_step.eval() * FLAGS.batch_size)
         loss = 0.0
         # Run evals on development set and print their perplexity.
         for bucket_id in xrange(len(_buckets)):
@@ -372,10 +372,10 @@ def train():
             json.dump(ppxy, out_f)
           out_f.close()  
                 
-          #if cps_counter % FLAGS.save_folder_checkpoint == 0:
-          #    print ('Saving folder for step {0} and epoch {1}'.format(current_step, epochs))
-          #    save_folder(model, FLAGS.batch_size)
-          #    cps_counter = 0
+          if cps_counter % FLAGS.save_folder_checkpoint == 0:
+              print ('Saving folder for step {0} and epoch {1}'.format(current_step, epochs))
+              save_folder(model, FLAGS.batch_size)
+              cps_counter = 0
         
         if round(eval_ppx,2) < previous_ppx:        #keep track of number of times we did not improve
             no_improvement = 0
