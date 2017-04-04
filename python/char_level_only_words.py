@@ -56,6 +56,8 @@ def get_file_lines(f_path):
 	
 
 def get_fixed_lines(file_lines):
+	'''Fix lines, filter out non-relation for example'''
+	
 	fixed_lines = []
 				
 	for line in file_lines:

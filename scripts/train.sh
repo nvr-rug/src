@@ -7,7 +7,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=rikvannoord@gmail.com
 
-#Script that can also run on Peregrine
+#Script that can also run on Peregrine and does the actual training on the seq2seq model
 
 #source ../../config/config_test.sh
 source $1

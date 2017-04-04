@@ -3,6 +3,8 @@ import sys
 import argparse
 import re
 
+'''Script that changes the AMR-files to character-level format'''
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", required=True, type=str, help="directory that contains amrs / sentences to be processed")
 parser.add_argument("-input_ext", default = '.sent',  required=False, type=str, help="Input extension of AMRs (default .sent)")
@@ -18,8 +20,9 @@ def write_to_file(lst, f):
 
 
 def process_pos_tagged(f_path):
-	fixed_lines = []
+	'''POS-tagged files get a special treatment, since the tags should be 1 character'''
 	
+	fixed_lines = []
 	
 	for line in open(f_path, 'r'):
 		new_l = ''
@@ -81,7 +84,7 @@ for root, dirs, files in os.walk(args.f):
 				out_f =  f_path.replace(args.input_ext,'.char' + args.input_ext)
 				write_to_file(fixed_lines, out_f)
 				
-			elif f.endswith('.tf.brack') or f.endswith('.tf.brackboth'):
+			elif f.endswith('.tf.brack') or f.endswith('.tf.brackboth'):	#different approach for bracketed files
 				char_lines = get_char_lines(f_path)
 				brack_lines = set_brack_lines(char_lines)
 				out_f =  f_path.replace('.tf.brack','.char.tf.brack')

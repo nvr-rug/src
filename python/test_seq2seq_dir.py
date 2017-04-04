@@ -132,8 +132,8 @@ def process_dir(cp_direc):
 		print 'Starting testing {0}...time: {1}'.format(cp_direc,str(datetime.now()))
 		with open(log_file, 'w') as f_out:
 			f_out.write('Starting testing {0}...\n'.format(cp_direc))
-			#test_call = 'python ' + args.python_path + 'translate.py --multiple_files --decode --test_folder {5} --out_folder {4} --data_dir {0} --train_dir {1} --size={2} --num_layers={3} --log_file {6} --input_ext {7} --output_ext {8} --en_vocab_size {9} --fr_vocab_size {10} --test_ext {7}'.format(args.df, cp_direc, args.size, args.layers, output_direc, args.f, log_file, args.input_ext, args.output_ext, args.en_vocab_size, args.fr_vocab_size)
-			#os.system(test_call)	#do python testing with file
+			test_call = 'python ' + args.python_path + 'translate.py --multiple_files --decode --test_folder {5} --out_folder {4} --data_dir {0} --train_dir {1} --size={2} --num_layers={3} --log_file {6} --input_ext {7} --output_ext {8} --en_vocab_size {9} --fr_vocab_size {10} --test_ext {7}'.format(args.df, cp_direc, args.size, args.layers, output_direc, args.f, log_file, args.input_ext, args.output_ext, args.en_vocab_size, args.fr_vocab_size)
+			os.system(test_call)	#do python testing with file
 			f_out.write('Testing complete!\n')
 			
 			for root, dirs, files in os.walk(output_direc):
@@ -164,14 +164,8 @@ def process_dir(cp_direc):
 		f_out.close()				
 	
 if __name__ == "__main__":
-	#dirs_to_check = os.walk(args.tf).next()[1]					# vocab folder and to be tested files stay the same, loop over different checkpoint models
-	#max_processes = min(len(dirs_to_check), args.max_threads)
-	#print '\nDoing {0} folders in parallel for {1} folders\n'.format(max_processes, len(dirs_to_check))
-	#pool = Pool(processes=max_processes)						
-	#pool.map(process_dir, dirs_to_check)						# test directories in parallel
 	process_dir(args.tf)					
-	#print args.tf			
-					
+				
 									
 	
 	

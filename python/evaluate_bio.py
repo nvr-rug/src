@@ -9,7 +9,8 @@ import json
 from multiprocessing import Pool
 import datetime
 
-'''Script that produces the Smatch output for CAMR, Boxer and Seq2seq produced AMRs'''
+'''Script that produces the Smatch output for CAMR, Boxer and Seq2seq produced AMRs
+   Works specifically for biomedical files (semeval 2017)'''
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-g', required=True, type=str, help="Gold file")

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#evaluation script
+#evaluation script for AMR parsing, $1 should be the configuration file
 
 source $1
 

@@ -29,6 +29,8 @@ parser.add_argument('-num_gold_files', default = 5, type=int, help="Number of in
 args = parser.parse_args()
 
 def combined_output_smatch(prod_ext, one_line, prod_dir):
+	'''Combine the tested files to obtain an average F1-score'''
+	
 	total_gold = []
 	total_prod = []
 	res = False
@@ -219,6 +221,8 @@ def add_average(d):
 	return d	
 
 def print_nice_output(res_dict, gold_ids, model_type, all_epochs):
+	'''Print nice output to terminal and evaluation file'''
+	
 	if 'average' not in gold_ids:
 		gold_ids.append('average')		#add for average
 	gold_ids = list(set(gold_ids))
