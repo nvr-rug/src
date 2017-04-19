@@ -138,33 +138,33 @@ def check_invalid(in_file, log_file):
 
 def process_dir(cp_direc):
 	'''Processes a checkpoint directory - producing output for all test files'''
-	print 'Process'
-	#replace_unk = '-replace_unk' if args.repl else ''	
-	#gpu = '-gpuid 1' if args.gpu else ''
-	#direc_name 		= cp_direc.split('/')[-1]
-	#output_direc 	= args.o + 'output_' + direc_name
-	#log_folder, log_file = get_logs(output_direc)
+
+	replace_unk = '-replace_unk' if args.repl else ''	
+	gpu = '-gpuid 1' if args.gpu else ''
+	direc_name 		= cp_direc.split('/')[-1]
+	output_direc 	= args.o + 'output_' + direc_name
+	log_folder, log_file = get_logs(output_direc)
 	
-	#os.system('mkdir -p {0}'.format(output_direc))	# create output dir for this checkpoint
+	os.system('mkdir -p {0}'.format(output_direc))	# create output dir for this checkpoint
 	
-	#print 'Starting testing {0}...time: {1}'.format(cp_direc,str(datetime.now()))
+	print 'Starting testing {0}...time: {1}'.format(cp_direc,str(datetime.now()))
 	
-	#with open(log_file, 'w') as f_out:
-		#for root, dirs, files in os.walk(args.f):
-			#for f in files:
-				#if f.endswith(args.test_ext):
-					#f_path = os.path.join(root, f)
-					#out_file = output_direc + '/' + f.replace(args.test_ext,args.prod_ext)
-					#log_output = log_folder + '/' +  f + '.log'
+	with open(log_file, 'w') as f_out:
+		for root, dirs, files in os.walk(args.f):
+			for f in files:
+				if f.endswith(args.test_ext):
+					f_path = os.path.join(root, f)
+					out_file = output_direc + '/' + f.replace(args.test_ext,args.prod_ext)
+					log_output = log_folder + '/' +  f + '.log'
 					
-					#f_out.write('Starting testing {0}...\n'.format(f))
-					#print 'Starting testing {0}...\n'.format(f)
+					f_out.write('Starting testing {0}...\n'.format(f))
+					print 'Starting testing {0}...\n'.format(f)
 					
-					##test_call = 'th {0}translate.lua -src {1} -output {2} -model {3} -beam_size {4} -max_sent_length {5} {6} -n_best {7} {8} -log_file {9} -fallback_to_cpu'.format(args.OMT_path, f_path, out_file, args.tf, args.beam_size, args.max_sent_length, replace_unk, args.n_best, gpu, log_output)
-					##os.system(test_call)	#do python testing with file
+					test_call = 'th {0}translate.lua -src {1} -output {2} -model {3} -beam_size {4} -max_sent_length {5} {6} -n_best {7} {8} -log_file {9} -fallback_to_cpu'.format(args.OMT_path, f_path, out_file, args.tf, args.beam_size, args.max_sent_length, replace_unk, args.n_best, gpu, log_output)
+					os.system(test_call)	#do python testing with file
 					
-					#f_out.write('Testing complete!\n')
-					#print 'Testing complete!\n'
+					f_out.write('Testing complete!\n')
+					print 'Testing complete!\n'
 		
 		#for root, dirs, files in os.walk(output_direc):
 			#for f in files:
