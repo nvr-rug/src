@@ -12,7 +12,8 @@ FILE=$3
 test_script="/home/p266548/Documents/amr_Rik/Seq2seq/src/python/test_OMT_dir.py"
 
 if [ $2 = "per" ]; then						# we are on peregrine, load modules
-    echo "Train on Peregrine..."
+    echo "Testing on Peregrine..."
+    module load requests/2.7.0-goolfc-2.7.11-Python-2.7.9
     module load cuDNN/5.0-CUDA-7.5.18
 	module load foss/2016a
 	echo "Loading modules complete"
