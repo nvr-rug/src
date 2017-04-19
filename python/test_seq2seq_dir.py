@@ -22,9 +22,9 @@ parser.add_argument('-layers',default = 1, type = int ,help="number of layers in
 parser.add_argument('-max_threads',default = 8, type = int ,help="Max num of parallel threads for testing")
 parser.add_argument('-no_rewrite',default = False, type = bool ,help="When included we rewrite invalid AMRs")
 parser.add_argument("-prod_ext", default = '.seq.amr', type=str, help="Extension of produced AMRs (default .seq.amr)")
-parser.add_argument("-input_ext", default = '.sent', type=str, help="Input extension (default .sent)")
+parser.add_argument("-input_ext", default = '.char.sent', type=str, help="Input extension (default .sent)")
 parser.add_argument("-sent_ext", default = '.sent', type=str, help="Sent extension (default .sent)")
-parser.add_argument("-output_ext", default = '.tf', type=str, help="Output extension (default .tf)")
+parser.add_argument("-output_ext", default = '.char.tf', type=str, help="Output extension (default .tf)")
 parser.add_argument("-python_path", default = '/home/p266548/Documents/amr_Rik/Seq2seq/src/python/', type=str, help="Path where we keep the Python source files")
 args = parser.parse_args() 
 
@@ -95,6 +95,7 @@ def do_pruning(in_file, log_file):
 	prune_call = 'python ' + args.python_path + 'delete_double_args.py -f {0}'.format(in_file)
 	os.system(prune_call)
 	prune_file = in_file + '.pruned'
+	print 'prune file: {0}'.format(prune_file)
 	check_valid(prune_file, True, log_file)
 	
 	return prune_file
@@ -111,7 +112,7 @@ def restore_amr(in_file, output_direc, file_path, log_file):
 		print '.brackboth file'
 	else:
 		restore_call = 'python ' + args.python_path + 'restoreAMR/restore_amr.py {0} > {1}'.format(file_path, restore_file)
-	print restore_call
+	#print restore_call
 	os.system(restore_call)
 	
 							
@@ -120,6 +121,14 @@ def restore_amr(in_file, output_direc, file_path, log_file):
 	
 	return restore_file
 
+
+def check_invalid(in_file, log_file):
+	log_file.write('\tDeleting invalid args...\n')
+	out_ext = '.check'
+	check_call = 'python ' + args.python_path + 'delete_invalid_args.py -f {0} -out_ext {1}'.format(in_file, out_ext)
+	os.system(check_call)
+	check_file = in_file + out_ext
+	return check_file
 
 def process_dir(cp_direc):
 	'''Processes a checkpoint directory - producing output for all test files'''
@@ -146,6 +155,7 @@ def process_dir(cp_direc):
 						# first do postprocessing steps individually
 						
 						restore_file 		= restore_amr(f, output_direc, file_path, f_out)
+						#check_file			= check_invalid(restore_file, f_out)
 						prune_file 			= do_pruning(restore_file, f_out)
 						wiki_file, success 	= add_wikification(restore_file, sent_file, f_out)
 						coref_file 			= add_coreference(restore_file, f_out, '.coref')
@@ -154,7 +164,11 @@ def process_dir(cp_direc):
 						
 						f_out.write('\tDo all postprocessing steps...\n')
 						
+						#check_file_pruned = do_pruning(check_file, f_out) 
+						#wiki_file_pruned, success = add_wikification(check_file_pruned, sent_file, f_out)
+						
 						wiki_file_pruned, success = add_wikification(prune_file, sent_file, f_out)
+						
 						if success:
 							coref_file_wiki_pruned 	  = add_coreference(wiki_file_pruned, f_out, '.coref.all')
 						else:

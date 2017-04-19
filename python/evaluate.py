@@ -24,6 +24,7 @@ parser.add_argument('-range_words', nargs='+', type=int, default = [], help ='Se
 parser.add_argument('-roots_to_check', required = True, help = 'Root folder to check for output results')
 parser.add_argument('-prod_ext', default = '.seq.amr.restore', type=str, help="Ext of produced files")
 parser.add_argument('-gold_ext', default = '.txt', type=str, help="Ext of produced files")
+parser.add_argument('-check', default = '', type=str, help="Include check-files or not")
 parser.add_argument('-num_gold_files', default = 5, type=int, help="Number of individual gold files (5 for LDC2)")
 
 args = parser.parse_args()
@@ -85,9 +86,14 @@ def prepare_data(ids):
 	all_epochs = []
 	for fol in dirs_to_check:
 		for idx, ident in enumerate(ids):
-			train_inst = fol.split('-')[-1]
-			ep_num = round(float(train_inst) / float(args.train_size),1)
-			all_epochs.append(ep_num)
+			if 'epoch' not in fol:
+				train_inst = fol.split('-')[-1]
+				ep_num = round(float(train_inst) / float(args.train_size),1)
+				all_epochs.append(ep_num)
+			else:
+				ep_num = float(re.findall(r'epoch([\d]+)', fol)[0])
+				all_epochs.append(ep_num)
+	
 			idf = ident.split('.')[-1]
 			m_type = '{0} epochs ({1}) '.format(ep_num, idf)		
 			model_type.append(m_type)
@@ -259,10 +265,13 @@ def print_nice_output(res_dict, gold_ids, model_type, all_epochs):
 	
 		
 if __name__ == '__main__':
-	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.wiki.coref']
-	ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned', '.seq.amr.restore.pruned.wiki.coref.all']
-	#ids = ['.seq.amr.restore','.seq.amr.restore.wiki']
-	#ids = ['.seq.amr.restore']
+	#if os.stat(args.eval_folder).st_ctime > 1491487125:	#super hacky, check if evaluation folder already existed from before I introduced .check files, if so, don't check those IDs
+	if args.check:
+		ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned','seq.amr.restore.check','.seq.amr.restore.check.pruned.wiki.coref.all']
+		print 'Use new IDs'
+	else:
+		print 'Use old IDs'
+		ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned','.seq.amr.restore.pruned.wiki.coref.all']	
 	
 	model_type, gold_ids, gold_files, res_dict, dirs_to_check, all_epochs = prepare_data(ids)
 	counter = 0

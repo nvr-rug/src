@@ -824,9 +824,9 @@ def main(arguments):
         amr2.rename_node(prefix2)
         (instance1, attributes1, relation1) = amr1.get_triples()
         (instance2, attributes2, relation2) = amr2.get_triples()
-        print 'inst',instance2,'\n\n\n'
-        print 'att',attributes2,'\n'
-        print 'relation',relation2,'\n'
+        #print 'inst',instance2,'\n\n\n'
+        #print 'att',attributes2,'\n'
+        #print 'relation',relation2,'\n'
         if verbose:
             # print parse results of two AMRs
             print >> DEBUG_LOG, "AMR pair", sent_num
