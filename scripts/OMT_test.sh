@@ -17,6 +17,7 @@ if [ $2 = "per" ]; then						# we are on peregrine, load modules
     module load cuDNN/5.0-CUDA-7.5.18
 	module load foss/2016a
 	echo "Loading modules complete"
+	. /home/p266548/torch/install/bin/torch-activate
 else
 	echo "Not training on Peregrine, but on GPU"
 	gpu="-gpu gpu"
