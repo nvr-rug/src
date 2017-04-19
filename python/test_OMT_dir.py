@@ -138,67 +138,67 @@ def check_invalid(in_file, log_file):
 
 def process_dir(cp_direc):
 	'''Processes a checkpoint directory - producing output for all test files'''
+	print 'Process'
+	#replace_unk = '-replace_unk' if args.repl else ''	
+	#gpu = '-gpuid 1' if args.gpu else ''
+	#direc_name 		= cp_direc.split('/')[-1]
+	#output_direc 	= args.o + 'output_' + direc_name
+	#log_folder, log_file = get_logs(output_direc)
 	
-	replace_unk = '-replace_unk' if args.repl else ''	
-	gpu = '-gpuid 1' if args.gpu else ''
-	direc_name 		= cp_direc.split('/')[-1]
-	output_direc 	= args.o + 'output_' + direc_name
-	log_folder, log_file = get_logs(output_direc)
+	#os.system('mkdir -p {0}'.format(output_direc))	# create output dir for this checkpoint
 	
-	os.system('mkdir -p {0}'.format(output_direc))	# create output dir for this checkpoint
+	#print 'Starting testing {0}...time: {1}'.format(cp_direc,str(datetime.now()))
 	
-	print 'Starting testing {0}...time: {1}'.format(cp_direc,str(datetime.now()))
-	
-	with open(log_file, 'w') as f_out:
-		for root, dirs, files in os.walk(args.f):
-			for f in files:
-				if f.endswith(args.test_ext):
-					f_path = os.path.join(root, f)
-					out_file = output_direc + '/' + f.replace(args.test_ext,args.prod_ext)
-					log_output = log_folder + '/' +  f + '.log'
+	#with open(log_file, 'w') as f_out:
+		#for root, dirs, files in os.walk(args.f):
+			#for f in files:
+				#if f.endswith(args.test_ext):
+					#f_path = os.path.join(root, f)
+					#out_file = output_direc + '/' + f.replace(args.test_ext,args.prod_ext)
+					#log_output = log_folder + '/' +  f + '.log'
 					
-					f_out.write('Starting testing {0}...\n'.format(f))
-					print 'Starting testing {0}...\n'.format(f)
+					#f_out.write('Starting testing {0}...\n'.format(f))
+					#print 'Starting testing {0}...\n'.format(f)
 					
-					test_call = 'th {0}translate.lua -src {1} -output {2} -model {3} -beam_size {4} -max_sent_length {5} {6} -n_best {7} {8} -log_file {9} -fallback_to_cpu'.format(args.OMT_path, f_path, out_file, args.tf, args.beam_size, args.max_sent_length, replace_unk, args.n_best, gpu, log_output)
-					os.system(test_call)	#do python testing with file
+					##test_call = 'th {0}translate.lua -src {1} -output {2} -model {3} -beam_size {4} -max_sent_length {5} {6} -n_best {7} {8} -log_file {9} -fallback_to_cpu'.format(args.OMT_path, f_path, out_file, args.tf, args.beam_size, args.max_sent_length, replace_unk, args.n_best, gpu, log_output)
+					##os.system(test_call)	#do python testing with file
 					
-					f_out.write('Testing complete!\n')
-					print 'Testing complete!\n'
+					#f_out.write('Testing complete!\n')
+					#print 'Testing complete!\n'
 		
-		for root, dirs, files in os.walk(output_direc):
-			for f in files:
-				if f.endswith(args.prod_ext):
-					f_out.write('Processing steps of {0}\n'.format(f))
-					print 'Processing steps of {0}\n'.format(f)
+		#for root, dirs, files in os.walk(output_direc):
+			#for f in files:
+				#if f.endswith(args.prod_ext):
+					#f_out.write('Processing steps of {0}\n'.format(f))
+					#print 'Processing steps of {0}\n'.format(f)
 					
-					file_path = os.path.join(root,f)
-					sent_file = args.f + f.replace(args.prod_ext, args.sent_ext)		#find correct input file in working folder by replacing produced extension by the sent extension
+					#file_path = os.path.join(root,f)
+					#sent_file = args.f + f.replace(args.prod_ext, args.sent_ext)		#find correct input file in working folder by replacing produced extension by the sent extension
 					
-					# first do postprocessing steps individually
+					## first do postprocessing steps individually
 					
-					restore_file 		= restore_amr(f, output_direc, file_path, f_out)
-					check_file			= check_invalid(restore_file, f_out)
-					prune_file 			= do_pruning(restore_file, f_out)
-					wiki_file, success 	= add_wikification(restore_file, sent_file, f_out)
-					coref_file 			= add_coreference(restore_file, f_out, '.coref')
+					#restore_file 		= restore_amr(f, output_direc, file_path, f_out)
+					#check_file			= check_invalid(restore_file, f_out)
+					#prune_file 			= do_pruning(restore_file, f_out)
+					#wiki_file, success 	= add_wikification(restore_file, sent_file, f_out)
+					#coref_file 			= add_coreference(restore_file, f_out, '.coref')
 					
-					# then add all postprocessing steps together, starting at the pruning
+					## then add all postprocessing steps together, starting at the pruning
 					
-					f_out.write('\tDo all postprocessing steps...\n')
-					print '\tDo all postprocessing steps...\n'
+					#f_out.write('\tDo all postprocessing steps...\n')
+					#print '\tDo all postprocessing steps...\n'
 					
-					check_file_pruned = do_pruning(check_file, f_out) 
-					wiki_file_pruned, success = add_wikification(check_file_pruned, sent_file, f_out)
+					#check_file_pruned = do_pruning(check_file, f_out) 
+					#wiki_file_pruned, success = add_wikification(check_file_pruned, sent_file, f_out)
 					
-					if success:
-						coref_file_wiki_pruned 	  = add_coreference(wiki_file_pruned, f_out, '.coref.all')
-					else:
-						f_out.write('\tWikification failed, not doing coreference on top of it\n')	
+					#if success:
+						#coref_file_wiki_pruned 	  = add_coreference(wiki_file_pruned, f_out, '.coref.all')
+					#else:
+						#f_out.write('\tWikification failed, not doing coreference on top of it\n')	
 					
-					f_out.write('\tDone processing!\n')
-					print '\tDone processing!\n'
-	f_out.close()				
+					#f_out.write('\tDone processing!\n')
+					#print '\tDone processing!\n'
+	#f_out.close()				
 	
 if __name__ == "__main__":
 	process_dir(args.tf)					
