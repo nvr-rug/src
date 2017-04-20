@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --time=2-23:59:55
+#SBATCH --time=00:20:00
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
 #SBATCH --mem=15G
@@ -15,6 +15,7 @@ if [ $2 = "per" ]; then						# we are on peregrine, load modules
     echo "Train on Peregrine..."
     module load cuDNN/5.0-CUDA-7.5.18
 	module load foss/2016a
+	module load requests/2.7.0-goolfc-2.7.11-Python-2.7.9
 	echo "Loading modules complete"
 else
 	echo "Not training on Peregrine..."
