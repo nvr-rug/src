@@ -166,38 +166,38 @@ def process_dir(cp_direc):
 					f_out.write('Testing complete!\n')
 					print 'Testing complete!\n'
 		
-		#for root, dirs, files in os.walk(output_direc):
-			#for f in files:
-				#if f.endswith(args.prod_ext):
-					#f_out.write('Processing steps of {0}\n'.format(f))
-					#print 'Processing steps of {0}\n'.format(f)
+		for root, dirs, files in os.walk(output_direc):
+			for f in files:
+				if f.endswith(args.prod_ext):
+					f_out.write('Processing steps of {0}\n'.format(f))
+					print 'Processing steps of {0}\n'.format(f)
 					
-					#file_path = os.path.join(root,f)
-					#sent_file = args.f + f.replace(args.prod_ext, args.sent_ext)		#find correct input file in working folder by replacing produced extension by the sent extension
+					file_path = os.path.join(root,f)
+					sent_file = args.f + f.replace(args.prod_ext, args.sent_ext)		#find correct input file in working folder by replacing produced extension by the sent extension
 					
-					## first do postprocessing steps individually
+					# first do postprocessing steps individually
 					
-					#restore_file 		= restore_amr(f, output_direc, file_path, f_out)
-					#check_file			= check_invalid(restore_file, f_out)
-					#prune_file 			= do_pruning(restore_file, f_out)
-					#wiki_file, success 	= add_wikification(restore_file, sent_file, f_out)
-					#coref_file 			= add_coreference(restore_file, f_out, '.coref')
+					restore_file 		= restore_amr(f, output_direc, file_path, f_out)
+					check_file			= check_invalid(restore_file, f_out)
+					prune_file 			= do_pruning(restore_file, f_out)
+					wiki_file, success 	= add_wikification(restore_file, sent_file, f_out)
+					coref_file 			= add_coreference(restore_file, f_out, '.coref')
 					
-					## then add all postprocessing steps together, starting at the pruning
+					# then add all postprocessing steps together, starting at the pruning
 					
-					#f_out.write('\tDo all postprocessing steps...\n')
-					#print '\tDo all postprocessing steps...\n'
+					f_out.write('\tDo all postprocessing steps...\n')
+					print '\tDo all postprocessing steps...\n'
 					
-					#check_file_pruned = do_pruning(check_file, f_out) 
-					#wiki_file_pruned, success = add_wikification(check_file_pruned, sent_file, f_out)
+					check_file_pruned = do_pruning(check_file, f_out) 
+					wiki_file_pruned, success = add_wikification(check_file_pruned, sent_file, f_out)
 					
-					#if success:
-						#coref_file_wiki_pruned 	  = add_coreference(wiki_file_pruned, f_out, '.coref.all')
-					#else:
-						#f_out.write('\tWikification failed, not doing coreference on top of it\n')	
+					if success:
+						coref_file_wiki_pruned 	  = add_coreference(wiki_file_pruned, f_out, '.coref.all')
+					else:
+						f_out.write('\tWikification failed, not doing coreference on top of it\n')	
 					
-					#f_out.write('\tDone processing!\n')
-					#print '\tDone processing!\n'
+					f_out.write('\tDone processing!\n')
+					print '\tDone processing!\n'
 	#f_out.close()				
 	
 if __name__ == "__main__":
