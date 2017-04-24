@@ -4,8 +4,6 @@
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
 #SBATCH --mem=15G
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=rikvannoord@gmail.com
 
 source $1	#$1 is the config file, there is all the information about the parameters
 
