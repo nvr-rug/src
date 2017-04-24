@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --time=01:30:00
 #SBATCH --nodes=1
-#SBATCH --ntasks=4
-#SBATCH --mem=2G
+#SBATCH --ntasks=12
+#SBATCH --mem=12G
 
 source $1	#$1 is the config file, all parameter values are there
 
@@ -17,6 +17,7 @@ if [ $2 = "per" ]; then						# we are on peregrine, load modules
 	module load foss/2016a
 	module load requests/2.7.0-goolfc-2.7.11-Python-2.7.9
 	echo "Loading modules complete"
+	gpu="-gpu gpu"
 	#. /home/p266548/torch/install/bin/torch-activate
 else
 	echo "Not training on Peregrine, but on GPU"
