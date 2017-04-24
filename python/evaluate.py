@@ -24,7 +24,7 @@ parser.add_argument('-range_words', nargs='+', type=int, default = [], help ='Se
 parser.add_argument('-roots_to_check', required = True, help = 'Root folder to check for output results')
 parser.add_argument('-prod_ext', default = '.seq.amr.restore', type=str, help="Ext of produced files")
 parser.add_argument('-gold_ext', default = '.txt', type=str, help="Ext of produced files")
-parser.add_argument('-check', default = '', type=str, help="Include check-files or not")
+parser.add_argument('-check', required = True, type=str, help="Include check-files or not")
 parser.add_argument('-num_gold_files', default = 5, type=int, help="Number of individual gold files (5 for LDC2)")
 
 args = parser.parse_args()
@@ -266,7 +266,7 @@ def print_nice_output(res_dict, gold_ids, model_type, all_epochs):
 		
 if __name__ == '__main__':
 	#if os.stat(args.eval_folder).st_ctime > 1491487125:	#super hacky, check if evaluation folder already existed from before I introduced .check files, if so, don't check those IDs
-	if args.check:
+	if args.check == 'check':
 		ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned','seq.amr.restore.check','.seq.amr.restore.check.pruned.wiki.coref.all']
 		print 'Use new IDs'
 	else:
