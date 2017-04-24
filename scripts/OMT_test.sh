@@ -3,6 +3,7 @@
 #IGNORE THIS SBATCH --nodes=1
 #IGNORE THIS SBATCH --ntasks=12
 #SBATCH --mem=12G
+#SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
 
 source $1	#$1 is the config file, all parameter values are there

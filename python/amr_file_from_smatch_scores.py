@@ -307,11 +307,11 @@ if __name__ == '__main__':
 	#res = add_extra_score(res)
 	#print_new_score_stats(res)
 	
-	f_list = [0.55,0.60, 0.65, 0.7,0.75, 0.8, 0.85]
-	max_amrs = 25000
-	added_amrs = [10000, 20000, 30000, 40000, 50000, 75000, 100000]
+	#f_list = [0.55,0.60, 0.65, 0.7,0.75, 0.8, 0.85]
+	#max_amrs = 25000
+	#added_amrs = [10000, 20000, 30000, 40000, 50000, 75000, 100000]
 	
-	amrs_per_f_score(res, f_list, max_amrs)
+	#amrs_per_f_score(res, f_list, max_amrs)
 	
 	#if args.f3:
 	#	get_amrs_constant_F_score(res, f_list, added_amrs)
