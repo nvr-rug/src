@@ -164,8 +164,8 @@ def amrs_per_f_score(res, f_list, max_amrs):
 		print 'Number of AMRs: {0}'.format(len(keep_sents))
 		print 'Avg sen-len with null-tags: {0}'.format(avg_length)
 		
-		#write_to_file(keep_amrs, f_amr)
-		#write_to_file(keep_sents, f_sent)
+		write_to_file(keep_amrs, f_amr)
+		write_to_file(keep_sents, f_sent)
 		
 		if args.f2:			#also add constant number of AMRs per F-score if we specified a folder
 			keep_amrs, keep_sents = shuffle_dependent_lists(keep_amrs, keep_sents)	#randomize 
@@ -302,16 +302,16 @@ if __name__ == '__main__':
 		with open(args.dic) as in_f:    
 			res = json.load(in_f)
 		
-	print 'Done creating dict'
+	print 'Done with creating/loading dict'
 	
 	#res = add_extra_score(res)
 	#print_new_score_stats(res)
 	
-	#f_list = [0.55,0.60, 0.65, 0.7,0.75, 0.8, 0.85]
-	#max_amrs = 25000
+	f_list = [0.5, 0.55,0.60, 0.65, 0.7,0.75, 0.8, 0.85]
+	max_amrs = 25000
 	#added_amrs = [10000, 20000, 30000, 40000, 50000, 75000, 100000]
 	
-	#amrs_per_f_score(res, f_list, max_amrs)
+	amrs_per_f_score(res, f_list, max_amrs)
 	
 	#if args.f3:
 	#	get_amrs_constant_F_score(res, f_list, added_amrs)
