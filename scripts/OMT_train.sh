@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --time=2-23:59:55
+#SBATCH --time=23:59:55
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
 #SBATCH --mem=15G
