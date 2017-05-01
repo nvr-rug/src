@@ -654,6 +654,6 @@ if __name__ == '__main__':
 				write_output(f, old_amrs, new_amrs, sent_amrs)
 			
 	if args.cleanup:
-		os.system('rm {0}*.txt.new*'.format(args.f.strip()))
+		os.system('rm {0}*.txt.new'.format(args.f.strip()))
 		os.system('rm {0}*.txt.old*'.format(args.f.strip()))		
 		

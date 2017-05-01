@@ -12,7 +12,7 @@ from datetime import datetime
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-o', required = True,help="General output-folder")
-parser.add_argument('-f', required = True,help="Working folder test")
+parser.add_argument('-f', default = '',help="Working folder test, if empty we find it heuristically")
 parser.add_argument("-OMT_path", default = '/home/p266548/Documents/amr_Rik/OpenNMT/', type=str, help="Path where we keep the OMT source files")
 parser.add_argument("-prod_ext", default = '.seq.amr', type=str, help="Prod extension")
 parser.add_argument("-sent_ext", default = '.sent', type=str, help="Sent extension")
@@ -192,7 +192,12 @@ def process_dir(output_direc):
 					print 'Processing steps of {0}\n'.format(f)
 					
 					file_path = os.path.join(root,f)
-					sent_file = args.f + f.replace(args.prod_ext, args.sent_ext)		#find correct input file in working folder by replacing produced extension by the sent extension
+					if not args.f:
+						
+						test_fol = args.o.replace('/output/','/working/test/')
+						sent_file = test_fol + f.replace(args.prod_ext, args.sent_ext)		#find correct input file in working folder by replacing produced extension by the sent extension
+					else:
+						sent_file = args.f + f.replace(args.prod_ext, args.sent_ext)
 					
 					# first do postprocessing steps individually
 					

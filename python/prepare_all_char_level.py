@@ -78,18 +78,20 @@ for root, dirs, files in os.walk(args.f):
 	for f in files:
 		if (f.endswith(args.input_ext) or f.endswith(args.output_ext)) and '.char' not in f:
 			f_path = os.path.join(root, f)
-			if '.pos' in f and '.sent' in f:						#different approach for pos-tagged sentences
-				fixed_lines = process_pos_tagged(f_path)
+			if 'silver' in f and f.endswith('.tf'):
+				print f
+				if '.pos' in f and '.sent' in f:						#different approach for pos-tagged sentences
+					fixed_lines = process_pos_tagged(f_path)
+					
+					out_f =  f_path.replace(args.input_ext,'.char' + args.input_ext)
+					write_to_file(fixed_lines, out_f)
+					
+				elif f.endswith('.tf.brack') or f.endswith('.tf.brackboth'):	#different approach for bracketed files
+					char_lines = get_char_lines(f_path)
+					brack_lines = set_brack_lines(char_lines)
+					out_f =  f_path.replace('.tf.brack','.char.tf.brack')
+					write_to_file(brack_lines, out_f)	
 				
-				out_f =  f_path.replace(args.input_ext,'.char' + args.input_ext)
-				write_to_file(fixed_lines, out_f)
-				
-			elif f.endswith('.tf.brack') or f.endswith('.tf.brackboth'):	#different approach for bracketed files
-				char_lines = get_char_lines(f_path)
-				brack_lines = set_brack_lines(char_lines)
-				out_f =  f_path.replace('.tf.brack','.char.tf.brack')
-				write_to_file(brack_lines, out_f)	
-			
-			else:
-				os_call =  'sed -e "s/\ /+/g"  -e "s/./&\ /g" < {0} > {1}'.format(f_path, f_path.replace(args.input_ext,'.char' + args.input_ext).replace(args.output_ext,'.char' + args.output_ext))
-				os.system(os_call)
+				else:
+					os_call =  'sed -e "s/\ /+/g"  -e "s/./&\ /g" < {0} > {1}'.format(f_path, f_path.replace(args.input_ext,'.char' + args.input_ext).replace(args.output_ext,'.char' + args.output_ext))
+					os.system(os_call)
