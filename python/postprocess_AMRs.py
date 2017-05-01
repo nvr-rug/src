@@ -14,8 +14,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-o', required = True,help="General output-folder")
 parser.add_argument('-f', default = '',help="Working folder test, if empty we find it heuristically")
 parser.add_argument("-OMT_path", default = '/home/p266548/Documents/amr_Rik/OpenNMT/', type=str, help="Path where we keep the OMT source files")
-parser.add_argument("-prod_ext", default = '.seq.amr', type=str, help="Prod extension")
+parser.add_argument("-prod_ext", default = '.char.seq.amr', type=str, help="Prod extension")
 parser.add_argument("-sent_ext", default = '.sent', type=str, help="Sent extension")
+parser.add_argument("-sent_folder", default ='/home/p266548/Documents/amr_Rik/data_2017_fixed_unicode/data/amrs/split/test/', type=str, help="Sent-folder")
 parser.add_argument("-tgt_ext", default = '.char.tf', type=str, help="Target extension")
 parser.add_argument("-python_path", default = '/home/p266548/Documents/amr_Rik/Seq2seq/src/python/', type=str, help="Path where we keep the python source files")
 args = parser.parse_args() 
@@ -176,7 +177,6 @@ def get_check_dirs(output_folder):
 			to_do.append(fol)
 	
 	print 'Doing {0} out of {1} folders'.format(len(to_do), len(full_folders))
-	
 	return to_do		
 
 def process_dir(output_direc):
@@ -192,13 +192,9 @@ def process_dir(output_direc):
 					print 'Processing steps of {0}\n'.format(f)
 					
 					file_path = os.path.join(root,f)
-					if not args.f:
-						
-						test_fol = args.o.replace('/output/','/working/test/')
-						sent_file = test_fol + f.replace(args.prod_ext, args.sent_ext)		#find correct input file in working folder by replacing produced extension by the sent extension
-					else:
-						sent_file = args.f + f.replace(args.prod_ext, args.sent_ext)
-					
+					sent_file = args.sent_folder + f.replace(args.prod_ext, args.sent_ext)
+					if not os.path.isfile(sent_file):
+						print 'Something is wrong, sent-file does not exist'	
 					# first do postprocessing steps individually
 					
 					restore_file 		= restore_amr(f, output_direc, file_path, f_out)
@@ -227,6 +223,7 @@ if __name__ == "__main__":
 	check_dirs = get_check_dirs(args.o)
 	
 	max_processes = min(len(check_dirs), 12)
+	#max_processes = 1
 	print 'Processing {0} dirs, {1} in parallel'.format(len(check_dirs), max_processes)
 	
 	pool = Pool(processes=max_processes)						

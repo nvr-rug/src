@@ -268,6 +268,7 @@ if __name__ == '__main__':
 	#if os.stat(args.eval_folder).st_ctime > 1491487125:	#super hacky, check if evaluation folder already existed from before I introduced .check files, if so, don't check those IDs
 	if args.check == 'check':
 		ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned','seq.amr.restore.check','.seq.amr.restore.check.pruned.wiki.coref.all']
+		#ids = ['.seq.amr.restore']
 		print 'Use new IDs'
 	else:
 		print 'Use old IDs'
