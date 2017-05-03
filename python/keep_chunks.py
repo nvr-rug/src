@@ -9,7 +9,7 @@ import time
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", required=True, type=str, help="directory that contains amrs / sentences to be processed")
 parser.add_argument("-input_ext", default = '.char.tf',  required=False, type=str, help="Input extension of AMRs (default .char.tf)")
-parser.add_argument("-chunks", default = '/home/p266548/Documents/amr_Rik/list_of_chunks.txt', type=str, help="File with all words that are represented as chunks instead of characters")
+parser.add_argument("-chunks", default = '/home/p266548/Documents/amr_Rik/dicts/list_of_chunks.txt', type=str, help="File with all words that are represented as chunks instead of characters")
 
 args = parser.parse_args()
 

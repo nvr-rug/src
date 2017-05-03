@@ -17,10 +17,11 @@ parser.add_argument("-f3", default = '', type=str, help="Folder to save AMR file
 args = parser.parse_args()
 
 def write_to_file(lst, f):
-	with open(f, 'w') as out_f:
-		for l in lst:
-			out_f.write(l.strip() + '\n')
-	out_f.close()		
+	x = 1
+	#with open(f, 'w') as out_f:
+	#	for l in lst:
+	#		out_f.write(l.strip() + '\n')
+	#out_f.close()		
 
 def get_avg_sen_len(sents):
 	total_len = 0
@@ -307,11 +308,11 @@ if __name__ == '__main__':
 	#res = add_extra_score(res)
 	#print_new_score_stats(res)
 	
-	f_list = [0.5, 0.55,0.60, 0.65, 0.7,0.75, 0.8, 0.85]
-	max_amrs = 25000
+	#f_list = [0.5, 0.55,0.60, 0.65, 0.7,0.75, 0.8, 0.85]
+	#max_amrs = 25000
 	#added_amrs = [10000, 20000, 30000, 40000, 50000, 75000, 100000]
 	
-	amrs_per_f_score(res, f_list, max_amrs)
+	#amrs_per_f_score(res, f_list, max_amrs)
 	
 	#if args.f3:
 	#	get_amrs_constant_F_score(res, f_list, added_amrs)
