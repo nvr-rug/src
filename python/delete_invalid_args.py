@@ -355,6 +355,16 @@ def write_to_file(lst, f):
 	out_f.close()
 
 
+def check_errors(amrs):
+	new_amrs = []
+	
+	for line in amrs:
+		new_line = re.sub(r'(:[a-zA-Z]+)([0-9]+)\.',r'\1 \2', line)	#fix weird errors such as :quant7. :arg12. etc. Fix this sometime to see how they even got in
+		new_amrs.append(new_line)
+	
+	return new_amrs	
+
+
 if __name__ == '__main__':
 	
 	filtered_amrs = []
@@ -378,6 +388,8 @@ if __name__ == '__main__':
 	
 	print '\t\tChanged {0} AMRs by changing invalid arguments/senses'.format(changed)
 	
+	filtered_amrs = check_errors(filtered_amrs)
+	
 	out_file_fil = args.f + '.check_temp'
 	write_to_file(filtered_amrs, out_file_fil)
 	
@@ -387,3 +399,6 @@ if __name__ == '__main__':
 
 	os.system("rm {0}".format(out_file_fil))	#remove temp file again
 	
+	fix_amrs = [x.strip() for x in open(restore_new, 'r')]
+	fixed_amrs = check_errors(fix_amrs)
+	write_to_file(fixed_amrs, restore_new)

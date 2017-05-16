@@ -8,7 +8,8 @@ import subprocess
 import time
 import json
 
-'''Script that augments the data to get the best AMR permutation based on word order'''
+'''Script that augments the data to get the best AMR permutation based on word order
+   INPUT SHOULD INCLUDE ALIGNMENTS'''
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", required=True, type=str, help="folder that contains to be processed files")
@@ -98,7 +99,8 @@ def delete_amr_variables(amrs):
 
 
 def get_tokenized_sentences(f):
-	sents = [l.replace('# ::tok','').strip() for l in open(f,'r') if l.startswith('# ::tok')]
+	sents = [l.replace('# ::snt','').replace('# ::tok','').strip() for l in open(f,'r') if (l.startswith('# ::snt') or l.startswith('# ::tok') )]
+	print len(sents)
 	return sents
 
 
@@ -194,11 +196,13 @@ def get_word_and_sense(line):
 	elif ':op' not in line:
 		return [['','']]
 	else:
-		tmp = line.split()[2]		
-		sense, word = get_sense(tmp)
-		
-		
-		comb = [[word,sense]]		 
+		try:
+			tmp = line.split()[2]		
+			sense, word = get_sense(tmp)
+			comb = [[word,sense]]
+		except:
+			print 'Strange error that only happens for parses (non-gold data), ignore'
+			return [['','']]			 
 	return comb				
 
 def get_sense(word):
@@ -211,7 +215,7 @@ def get_sense(word):
 														# although this means that the actual sense does not refer to the tokens anymore (# e.g. the sense of house~e.4,12 becomes 8)			
 			sense = round((float(sum([int(i) for i in sense.split(',')]))) / (float(len(sense.split(',')))),0)
 		else:
-			sense = int(sense)	
+			sense = int(sense)
 														
 		word = word.split('~')[0]							# remove sense information to process rest of the word
 	else:
@@ -354,7 +358,7 @@ def combine_amrs(validated_old, validated_new, validated_sents, filter_same):
 	return new_amrs, new_sents	
 
 
-def check_validity(old_amrs_f, new_amrs_f, sent_amrs):
+def check_validity(old_amrs_f, new_amrs_f, sent_amrs, new_amrs_old):
 	'''Check if newly created AMRs are valid'''
 	
 	new_amrs = [x.strip() for x in open(new_amrs_f,'r')]
@@ -367,6 +371,7 @@ def check_validity(old_amrs_f, new_amrs_f, sent_amrs):
 	validated_new = []
 	validated_old = []
 	validated_sents = []
+	keep_new = []
 	invalid_new, invalid_length = 0, 0
 	
 	assert len(new_amrs) == len(old_amrs) == len(sent_amrs)
@@ -381,13 +386,14 @@ def check_validity(old_amrs_f, new_amrs_f, sent_amrs):
 			if validator_seq2seq.valid_amr(old_amrs[idx]):
 				validated_old.append(old_amrs[idx])
 				validated_new.append(new_amrs[idx])
-				validated_sents.append(sent_amrs[idx])						
+				validated_sents.append(sent_amrs[idx])
+				keep_new.append(new_amrs_old[idx])						
 	
 	print 'Invalid {0} based on length and {1} AMR-parse'.format(invalid_length, invalid_new)							
 	
 	assert(len(validated_new) == len(validated_sents) == len(validated_old))
 	
-	return validated_old, validated_new, validated_sents
+	return validated_old, validated_new, validated_sents, keep_new
 
 
 def get_add_string(search_part):
@@ -587,6 +593,9 @@ def process_file_best(amrs, sent_amrs):
 	save_all_amrs = []
 	assert len(amrs) == len(sent_amrs)
 	for idx, amr in enumerate(amrs):
+		#print idx, sent_amrs[idx]
+		if idx % 10000 == 0:
+			print 'At AMR {0}'.format(idx)
 		if amr.count(':') > 1:		#only try to do something if we can actually permutate					
 			permutations, keep_string1 = get_permutations(amr,1, sent_amrs[idx])
 			keep_str = '(' + keep_string1 
@@ -630,12 +639,22 @@ def write_output(f, old_amrs, new_amrs, sent_amrs):
 	restore_amrs(file_new, restore_new)		# both also write to file
 	restore_amrs(file_old, restore_old)
 	
-	validated_old, validated_new, validated_sents = check_validity(restore_old, restore_new, sent_amrs)
+	validated_old, validated_new, validated_sents, keep_new = check_validity(restore_old, restore_new, sent_amrs, new_amrs)
 	
+	write_to_file(keep_new, file_new)
 	write_to_file(validated_old, restore_old)
 	write_to_file(validated_new, restore_new)
 	write_to_file(validated_sents, sent_new)
-
+	
+	print file_old.split('/')[-1], len(old_amrs)
+	print file_new.split('/')[-1], len(new_amrs)
+	print sent_old.split('/')[-1], len(sent_amrs)
+	
+	print restore_old.split('/')[-1], len(validated_old)
+	print restore_new.split('/')[-1], len(validated_new)
+	print 'sents validated', len(validated_sents)
+	
+	
 	if args.double:
 		validated_combined_amrs, validated_combined_sents = combine_amrs(validated_old, validated_new, validated_sents, filter_same = True)		# double amrs!	
 		write_to_file(validated_combined_amrs, double_amr)
@@ -650,6 +669,7 @@ if __name__ == '__main__':
 				print '\n',f
 				f_path = os.path.join(root,f)
 				no_wiki_amrs, del_amrs, sent_amrs, old_amrs  = preprocess(f_path)
+				print len(old_amrs)
 				new_amrs, old_amrs, changed_amrs = process_file_best(old_amrs, sent_amrs)
 				write_output(f, old_amrs, new_amrs, sent_amrs)
 			

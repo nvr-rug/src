@@ -11,7 +11,9 @@ from datetime import datetime
 '''Script that tests given seq2seq model on given test data, also restoring and wikifying the produced AMRs'''
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-f', required = True,help="Source files to be tested")
+parser.add_argument('-test', required = True,help="Source test files to be tested")
+parser.add_argument('-dev', required = True,help="Source dev files to be tested")
+parser.add_argument('-to_process', required = True,help="Process dev or test (accept only dev or test)")
 parser.add_argument('-test_ext', default = '.char.sent',help="Extension of to be tested files")
 parser.add_argument('-tf', required = True,help="Specific model-file")
 parser.add_argument('-o', required = True,help="General output-folder")
@@ -46,10 +48,16 @@ def process_dir(cp_direc):
 	
 	os.system('mkdir -p {0}'.format(output_direc))	# create output dir for this checkpoint
 	
-	print 'Starting testing {0}...time: {1}'.format(cp_direc,str(datetime.now()))
+	if args.to_process == 'dev':
+		process_files = args.dev
+	elif args.to_process == 'test':
+		process_files = args.test
+	else:
+		print '-to_process must be dev or test'
+		sys.exit(0)		
 	
 	with open(log_file, 'w') as f_out:
-		for root, dirs, files in os.walk(args.f):
+		for root, dirs, files in os.walk(process_files):
 			for f in files:
 				if f.endswith(args.test_ext):
 					f_path = os.path.join(root, f)

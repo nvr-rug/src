@@ -14,9 +14,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-o', required = True,help="General output-folder")
 parser.add_argument('-f', default = '',help="Working folder test, if empty we find it heuristically")
 parser.add_argument("-OMT_path", default = '/home/p266548/Documents/amr_Rik/OpenNMT/', type=str, help="Path where we keep the OMT source files")
-parser.add_argument("-prod_ext", default = '.char.seq.amr', type=str, help="Prod extension")
+parser.add_argument("-prod_ext", default = '.seq.amr', type=str, help="Prod extension")
 parser.add_argument("-sent_ext", default = '.sent', type=str, help="Sent extension")
-parser.add_argument("-sent_folder", default ='/home/p266548/Documents/amr_Rik/data_2017_fixed_unicode/data/amrs/split/test/', type=str, help="Sent-folder")
 parser.add_argument("-tgt_ext", default = '.char.tf', type=str, help="Target extension")
 parser.add_argument("-python_path", default = '/home/p266548/Documents/amr_Rik/Seq2seq/src/python/', type=str, help="Path where we keep the python source files")
 args = parser.parse_args() 
@@ -184,6 +183,12 @@ def process_dir(output_direc):
 
 	log_folder, log_file = get_logs(output_direc)
 	
+	if 'dev' in args.o:
+		sent_folder = '/home/p266548/Documents/amr_Rik/data_2017_fixed_unicode/data/amrs/split/dev_all/'
+	else:
+		sent_folder = '/home/p266548/Documents/amr_Rik/data_2017_fixed_unicode/data/amrs/split/test/'	
+	
+	
 	with open(log_file, 'w') as f_out:	
 		for root, dirs, files in os.walk(output_direc):
 			for f in files:
@@ -192,8 +197,9 @@ def process_dir(output_direc):
 					print 'Processing steps of {0}\n'.format(f)
 					
 					file_path = os.path.join(root,f)
-					sent_file = args.sent_folder + f.replace(args.prod_ext, args.sent_ext)
+					sent_file = sent_folder + f.replace(args.prod_ext, '.sent').replace('.char.sent','.sent')
 					if not os.path.isfile(sent_file):
+						print sent_file
 						print 'Something is wrong, sent-file does not exist'	
 					# first do postprocessing steps individually
 					
@@ -203,7 +209,7 @@ def process_dir(output_direc):
 					wiki_file, success 	= add_wikification(restore_file, sent_file, f_out)
 					coref_file 			= add_coreference(restore_file, f_out, '.coref')
 					
-					# then add all postprocessing steps together, starting at the pruning
+					#then add all postprocessing steps together, starting at the pruning
 					
 					f_out.write('\tDo all postprocessing steps...\n')
 					print '\tDo all postprocessing steps...\n'

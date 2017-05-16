@@ -126,22 +126,22 @@ if __name__ == '__main__':
 					file_lines  = get_file_lines(f_path)
 					fixed_lines = get_fixed_lines(file_lines)
 					out_f =  f_path.replace('.tf','.char.tf')
-					write_to_file(out_f, fixed_lines)
+					write_to_file(fixed_lines, out_f)
 				elif f.endswith('.tf.brack') or f.endswith('.tf.brackboth'):							#bracketed files should keep *1(* etc as single character
 					file_lines  = get_file_lines(f_path)
 					fixed_lines = get_fixed_lines(file_lines)
 					brack_lines = set_brack_lines(fixed_lines)
 					out_f =  f_path.replace('.tf.brack','.char.tf.brack')
-					write_to_file(out_f, brack_lines)	
+					write_to_file(brack_lines, out_f)	
 				
 				elif f.endswith('.sent.pos'):					#different approach for pos-tagged sentences
 					print 'POS tagged process'
 					fixed_lines = process_pos_tagged(f_path)
-					out_f =  f_path.replace('sent.pos','.char.sent.pos')
-					write_to_file(out_f, fixed_lines)
+					out_f =  f_path.replace('.sent.pos','.char.sent.pos')
+					write_to_file(fixed_lines, out_f)
 						
 				elif f.endswith('.sent'):					#do normal char-level approach for sentence files
-					os_call =  'sed -e "s/\ /+/g"  -e "s/./&\ /g" < {0} > {1}'.format(f_path, f_path.replace('.sent','char.sent'))
+					os_call =  'sed -e "s/\ /+/g"  -e "s/./&\ /g" < {0} > {1}'.format(f_path, f_path.replace('.sent','.char.sent'))
 					os.system(os_call)
 				else:
 					print 'Both extensions not found, skipping {0}'.format(f)	

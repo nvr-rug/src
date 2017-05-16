@@ -37,6 +37,8 @@ def combined_output_smatch(prod_ext, one_line, prod_dir):
 	res = False
 	added = 0
 	
+	order = []
+	
 	for root1, dirs1, files1 in os.walk(prod_dir):
 		for f1 in files1:
 			for root2, dirs2, files2 in os.walk(args.g):
@@ -48,6 +50,7 @@ def combined_output_smatch(prod_ext, one_line, prod_dir):
 						match_part_p = f1.replace(match_p,'average')
 						match_part_g = f2.replace(match_g,'average')
 						if match_p == match_g:
+							order.append(match_p)
 							prod_amrs = [x.rstrip() for x in open(os.path.join(root1, f1))]
 							gold_amrs = [x.rstrip() for x in open(os.path.join(root2, f2))]
 							total_prod += prod_amrs
@@ -55,8 +58,12 @@ def combined_output_smatch(prod_ext, one_line, prod_dir):
 							added += 1
 	
 	if res and added == args.num_gold_files:			#check if we found result and also the correct number of files for the result
-		uniq_id = random.randint(0, 10000)
 		prod_file = prod_dir + '/' + match_part_p
+
+		print 'Order for', prod_dir.split('/')[-1], prod_ext
+		print order,'\n'
+		
+		uniq_id = random.randint(0, 10000)
 		gold_file = args.g + match_part_g + '_' + str(uniq_id)
 		
 		with open(prod_file,'w') as out_f:

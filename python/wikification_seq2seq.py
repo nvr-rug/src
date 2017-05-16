@@ -108,7 +108,8 @@ def wikify_pipeline_output(in_file, wikifier, in_sents, f_out):
 					success = False
 					while not success:
 						try:
-							spotlight = requests.post("http://spotlight.sztaki.hu:2222/rest/annotate", data = {'text':sentence, 'confidence':0.3})
+							#spotlight = requests.post("http://spotlight.sztaki.hu:2222/rest/annotate", data = {'text':sentence, 'confidence':0.3})
+							spotlight = requests.post("http://model.dbpedia-spotlight.org:2222/rest/annotate", data = {'text':sentence, 'confidence':0.3})
 							spotlight.encoding = 'utf-8'
 						except requests.exceptions.ConnectionError:
 							print 'sleeping a bit (spotlight overload)'

@@ -1,10 +1,11 @@
-# ::id isi_0001.1 ::date 2012-05-14T21:45:29
-# ::snt The boy wants the girl to believe him.
-(w / want-01
-      :ARG0 (b / boy)
-      :ARG1 (b2 / believe-01
-            :ARG0 (g / girl)
-            :ARG1 b))
-          
+# ::id nw.chtb_0012.1 ::date 2012-11-01T12:21:26 ::annotator SDL-AMR-09 ::preferred
+# ::snt Xinhua News Agency , Hong Kong , February 23rd
+# ::save-date Sat Nov 30, 2013 ::file nw_chtb_0012_1.txt
+(b / byline-91
+      :ARG0 (p / publication :wiki "Xinhua_News_Agency"
+            :name (n / name :op1 "Xinhua" :op2 "News" :op3 "Agency"))
+      :location (c2 / city :wiki "Hong_Kong"
+            :name (n2 / name :op1 "Hong" :op2 "Kong"))
+      :time (d / date-entity :month 2 :day 23))
                                     
                                     

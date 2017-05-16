@@ -887,6 +887,7 @@ def main(arguments):
     # output document-level smatch score (a single f-score for all AMR pairs in two files)
     if single_score:
         (precision, recall, best_f_score) = compute_f(total_match_num, total_test_num, total_gold_num)
+        print total_match_num, total_test_num, total_gold_num
         if pr_flag:
             print "Precision: "+floatdisplay % precision
             print "Recall: "+floatdisplay % recall
