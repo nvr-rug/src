@@ -123,7 +123,7 @@ def create_output(train_f, single_amrs):
 if __name__ == "__main__":
 	for root, dirs, files in os.walk(args.f):
 		for f in files:
-			if f.endswith(args.extension) and 'bolt' in f:
+			if f.endswith(args.extension):
 				f_path = os.path.join(root, f)
 				amr_file_no_wiki = delete_wiki(f_path)
 				del_amrs = delete_amr_variables(amr_file_no_wiki)

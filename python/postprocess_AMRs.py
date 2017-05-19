@@ -184,7 +184,7 @@ def process_dir(output_direc):
 	log_folder, log_file = get_logs(output_direc)
 	
 	if 'dev' in args.o:
-		sent_folder = '/home/p266548/Documents/amr_Rik/data_2017_fixed_unicode/data/amrs/split/dev_all/'
+		sent_folder = args.o.replace('/output_dev','/working/dev')
 	else:
 		sent_folder = '/home/p266548/Documents/amr_Rik/data_2017_fixed_unicode/data/amrs/split/test/'	
 	
@@ -197,7 +197,11 @@ def process_dir(output_direc):
 					print 'Processing steps of {0}\n'.format(f)
 					
 					file_path = os.path.join(root,f)
-					sent_file = sent_folder + f.replace(args.prod_ext, '.sent').replace('.char.sent','.sent')
+					if 'dev' in args.o:
+						sent_file = sent_folder + 'created_dev.sent.gold' 
+					else:
+						sent_file = sent_folder + f.replace(args.prod_ext, '.sent').replace('.char.sent','.sent')
+					
 					if not os.path.isfile(sent_file):
 						print sent_file
 						print 'Something is wrong, sent-file does not exist'	
@@ -224,9 +228,25 @@ def process_dir(output_direc):
 					
 					f_out.write('\tDone processing!\n')
 					print '\tDone processing!\n'			
+
+
+def create_dev_files():
+	sent_folder = args.o.replace('/output_dev','/working/dev')
+	if 'dev' in args.o:
+		sent_file = sent_folder + 'created_dev.sent.gold'
+		if not os.path.isfile(sent_file):
+			os_call = 'python ' + args.python_path + 'create_dev_file_again.py -g {0} -d {1}'.format('/home/p266548/Documents/amr_Rik/data_2017_fixed_unicode/data/amrs/split/dev/', sent_folder)
+			os.system(os_call)
+		if not os.path.isfile(sent_file):
+			print 'Creation did not work apparently (something went wrong), exiting'
+			sys.exit(0)	 
+
 	
 if __name__ == "__main__":
 	check_dirs = get_check_dirs(args.o)
+	
+	if 'dev' in args.o:
+		create_dev_files()
 	
 	max_processes = min(len(check_dirs), 12)
 	#max_processes = 1
