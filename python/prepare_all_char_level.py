@@ -91,5 +91,6 @@ for root, dirs, files in os.walk(args.f):
 				write_to_file(brack_lines, out_f)	
 			
 			else:
-				os_call =  'sed -e "s/\ /+/g"  -e "s/./&\ /g" < {0} > {1}'.format(f_path, f_path.replace(args.input_ext,'.char' + args.input_ext).replace(args.output_ext,'.char' + args.output_ext))
+				out_file = f_path.replace(args.input_ext,'.char' + args.input_ext).replace(args.output_ext,'.char' + args.output_ext)
+				os_call =  'sed -e "s/\ /+/g"  -e "s/./&\ /g" < {0} > {1}'.format(f_path, out_file)
 				os.system(os_call)

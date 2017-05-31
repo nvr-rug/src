@@ -1,10 +1,8 @@
-# ::id nw.chtb_0012.1 ::date 2012-11-01T12:21:26 ::annotator SDL-AMR-09 ::preferred
-# ::snt Xinhua News Agency , Hong Kong , February 23rd
-# ::save-date Sat Nov 30, 2013 ::file nw_chtb_0012_1.txt
-(b / byline-91
-      :ARG0 (p / publication :wiki "xinhua_news_agency"
-            :name (n / name :op1 "xinhua" :op2 "news" :op3 "agency"))
-      :location (c2 / city :wiki "hong_kong"
-            :name (n2 / name :op1 "hong" :op2 "kong"))
-      :time (d / date-entity :month 2 :day 23))
-
+(s / see
+    :ARG1 (ho / he)
+    :ARG2 ho
+               :mod (l / long))
+          
+          
+               
+  

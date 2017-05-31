@@ -65,13 +65,13 @@ def process_dir(cp_direc):
 					log_output = log_folder + '/' +  f + '.log'
 					
 					f_out.write('Starting testing {0}...\n'.format(f))
-					print 'Starting testing {0}...\n'.format(f)
+					print 'Starting testing {0}...'.format(f)
 					
 					test_call = 'th {0}translate.lua -src {1} -output {2} -model {3} -beam_size {4} -max_sent_length {5} {6} -n_best {7} {8} -log_file {9} -fallback_to_cpu'.format(args.OMT_path, f_path, out_file, args.tf, args.beam_size, args.max_sent_length, replace_unk, args.n_best, gpu, log_output)
 					os.system(test_call)	#do python testing with file
 					
 					f_out.write('Testing complete!\n')
-					print 'Testing complete!\n'
+					print 'Testing complete!'
 		
 	#f_out.close()				
 	

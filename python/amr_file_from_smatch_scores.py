@@ -4,7 +4,8 @@
 '''Script create AMR-files based om smatch scores from dictionary
    input: d[sent] = [CAMR, JAMR, f-score]'''
 
-import re,sys, argparse, os, subprocess, json
+import re,sys, argparse, os, subprocess, json, random
+from random import choice
 from random import shuffle
 reload(sys)
 
@@ -14,14 +15,15 @@ parser.add_argument("-dic", default = '', type=str, help="Full dict file, if emp
 parser.add_argument("-f1", required = True, type=str, help="Folder to save AMR files with AMRs per F-score")
 parser.add_argument("-f2", default = '', type=str, help="Folder to save AMR files by F-score with fixed number of AMRs")
 parser.add_argument("-f3", default = '', type=str, help="Folder to save AMR files with F-score random and # of AMRs constant")
+parser.add_argument('-p', required = True, action='store', choices=['camr','jamr','rand'], help='Which parse do we choose, CAMR, JAMR or randomly?')
 args = parser.parse_args()
 
 def write_to_file(lst, f):
-	x = 1
-	#with open(f, 'w') as out_f:
-	#	for l in lst:
-	#		out_f.write(l.strip() + '\n')
-	#out_f.close()		
+	#x = 1
+	with open(f, 'w') as out_f:
+		for l in lst:
+			out_f.write(l.strip() + '\n')
+	out_f.close()		
 
 def get_avg_sen_len(sents):
 	total_len = 0
@@ -153,17 +155,35 @@ def amrs_per_f_score(res, f_list, max_amrs):
 	for min_f in f_list:
 		keep_amrs  = []
 		keep_sents = []
+		all_smatch = []
+		counter = 0
 		for sent in res:
 			if res[sent][2] >= min_f:
-				keep_amrs.append(res[sent][0])
+				if args.p == 'camr':
+					keep_amrs.append(res[sent][0])
+				elif args.p == 'jamr':
+					keep_amrs.append(res[sent][1])
+				else:									#random		
+					if random.choice([True, True, True, False]):
+						#print 'CAMR'
+						keep_amrs.append(res[sent][0])	#randomly chose CAMR
+					else:
+						#print 'JAMR'
+						keep_amrs.append(res[sent][1])	#randomly chose JAMR
+				
 				keep_sents.append(sent.replace('# ::snt','').strip())
+				all_smatch.append(res[sent][2])
+				counter += 1
+		
 		print '\nFor minimal F-score of {0}:\n'.format(min_f)
-		f_amr  = '{0}silver_camr_jamr_{1}.tf'.format(args.f1, min_f)
+		f_amr  = '{0}silver_camr_jamr_{1}.txt.ol'.format(args.f1, min_f)
 		f_sent = '{0}silver_camr_jamr_{1}.sent'.format(args.f1, min_f)
 		avg_length = get_avg_sen_len(keep_sents)
 		
 		print 'Number of AMRs: {0}'.format(len(keep_sents))
-		print 'Avg sen-len with null-tags: {0}'.format(avg_length)
+		print 'Avg sen-len: {0}'.format(avg_length)
+		avg_smatch = float(sum(all_smatch)) / float(len(all_smatch))
+		print 'Average smatch-score: {0}'.format(avg_smatch)
 		
 		write_to_file(keep_amrs, f_amr)
 		write_to_file(keep_sents, f_sent)
@@ -176,7 +196,7 @@ def amrs_per_f_score(res, f_list, max_amrs):
 			
 			print 'Adding {0} AMRs for max_amrs of {1}'.format(len(keep_amrs_const), max_amrs)
 			
-			f_amr_const  = '{0}silver_camr_jamr_{1}_constant_{2}k.tf'.format(args.f2, min_f, int(max_amrs / 1000))
+			f_amr_const  = '{0}silver_camr_jamr_{1}_constant_{2}k.txt.ol'.format(args.f2, min_f, int(max_amrs / 1000))
 			f_sent_const = '{0}silver_camr_jamr_{1}_constant_{2}k.sent'.format(args.f2, min_f, int(max_amrs / 1000))
 			
 			write_to_file(keep_amrs_const, f_amr_const)
@@ -220,7 +240,7 @@ def get_amrs_constant_F_score(res, f_list, added_amrs):
 			final_sents.append(val[3].replace('# ::snt','').strip())
 			final_amrs.append(val[0])
 		
-		f_amr  = '{0}silver_camr_jamr_AMR_constant_{1}k.tf'.format(args.f3, int(to_add / 1000))
+		f_amr  = '{0}silver_camr_jamr_AMR_constant_{1}k.txt.ol'.format(args.f3, int(to_add / 1000))
 		f_sent = '{0}silver_camr_jamr_AMR_constant_{1}k.sent'.format(args.f3, int(to_add / 1000))
 		
 		write_to_file(final_amrs, f_amr)
@@ -308,11 +328,11 @@ if __name__ == '__main__':
 	#res = add_extra_score(res)
 	#print_new_score_stats(res)
 	
-	#f_list = [0.5, 0.55,0.60, 0.65, 0.7,0.75, 0.8, 0.85]
-	#max_amrs = 25000
+	f_list = [0.0, 0.1,0.2,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.70,0.75,0.80,0.85,0.9,0.95]
+	max_amrs = 100000
 	#added_amrs = [10000, 20000, 30000, 40000, 50000, 75000, 100000]
 	
-	#amrs_per_f_score(res, f_list, max_amrs)
+	amrs_per_f_score(res, f_list, max_amrs)
 	
 	#if args.f3:
 	#	get_amrs_constant_F_score(res, f_list, added_amrs)

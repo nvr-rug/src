@@ -359,7 +359,8 @@ def check_errors(amrs):
 	new_amrs = []
 	
 	for line in amrs:
-		new_line = re.sub(r'(:[a-zA-Z]+)([0-9]+)\.',r'\1 \2', line)	#fix weird errors such as :quant7. :arg12. etc. Fix this sometime to see how they even got in
+		new_line = re.sub(r'(:[a-zA-Z]+)([0-9]+)[\.,]',r'\1 \2', line)	#fix weird errors such as :quant7. :arg12. etc. Fix this sometime to see how they even got in
+		
 		new_amrs.append(new_line)
 	
 	return new_amrs	

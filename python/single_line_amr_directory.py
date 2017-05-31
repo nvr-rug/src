@@ -86,10 +86,15 @@ def delete_amr_variables(amrs):
 	'''Function that deletes variables from AMRs'''
 	var_dict = dict()
 	del_amr = []
+	num_amrs = 0
 	
 	for line in amrs:	
 		if not line.strip():
 			continue
+		elif line.startswith('# ::snt'):
+			cur_sent = line
+			num_amrs += 1
+			printed = False
 		elif line[0] != '#':
 			if '/' in line:		# variable here
 				deleted_var_string, var_dict = process_var_line(line, var_dict)						# process line and save variables
@@ -99,6 +104,12 @@ def delete_amr_variables(amrs):
 				split_line = line.split()
 				ref_var = split_line[1].replace(')', '')											# get var name
 				if ref_var in var_dict:
+					if not printed:
+						print num_amrs
+						#print 'Found coref for AMR {0}'.format(num_amrs)
+						#print cur_sent,'\n'
+						printed = True
+					#print 'Found variable {0} for AMR {1}'.format(ref_var, num_amrs)
 					ref_value = var_dict[ref_var]													# value to replace the variable name with
 					split_line[1] = split_line[1].replace(ref_var, '(' + ref_value.strip() + ')')   # do the replacing and add brackets for alignment
 					n_line = (len(line) - len(line.lstrip())) * ' ' + " ".join(split_line)
@@ -128,6 +139,6 @@ if __name__ == "__main__":
 				amr_file_no_wiki = delete_wiki(f_path)
 				del_amrs = delete_amr_variables(amr_file_no_wiki)
 
-				single_amrs = single_line_convert(del_amrs)
-				out_f = args.tf + f.replace(args.extension,args.output_ext)
-				create_output(out_f, single_amrs)
+				#single_amrs = single_line_convert(del_amrs)
+				#out_f = args.tf + f.replace(args.extension,args.output_ext)
+				#create_output(out_f, single_amrs)

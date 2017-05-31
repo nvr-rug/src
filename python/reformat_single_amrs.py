@@ -14,12 +14,13 @@ args = parser.parse_args()
 def process_file(f):
 	fixed_amrs = []
 	prev_ch = ''
-	sents = [x.strip() for x in open('/home/p266548/Documents/amr_Rik/Exp_OMT/Combinations/data_files/training_aligned_upper/silver_camr_jamr_AMR_constant_100k.sent','r')]
-	print len(sents)
+	#sents = [x.strip() for x in open('/home/p266548/Documents/amr_Rik/Exp_OMT/Combinations/data_files/training_aligned_upper/silver_camr_jamr_AMR_constant_100k.sent','r')]
+	#print len(sents)
 	for idx, line in enumerate(open(f,'r')):
-		print idx
+		#print idx
 		num_tabs = 0
-		amr_string = '# ::snt ' + sents[idx] + '\n'
+		amr_string = ''
+		#amr_string = '# ::snt ' + sents[idx] + '\n'
 		for ch in line:
 			if ch == '(':
 				num_tabs += 1

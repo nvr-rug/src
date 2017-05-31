@@ -10,6 +10,7 @@ parser.add_argument("-f", required=True, type=str, help="directory that contains
 #parser.add_argument("-brackets", default = '', type=str, help="Do we see multiple brackets as a single character?")
 parser.add_argument("-input_ext", default = '.sent',  required=False, type=str, help="Input extension of AMRs (default .sent)")
 parser.add_argument("-output_ext", default = '.tf', required=False, type=str, help="Output extension of AMRs (default .tf)")
+parser.add_argument("-coref", default = '', required=False, type=str, help="Include if we did something with coreference")
 args = parser.parse_args()
 
 
@@ -71,7 +72,17 @@ def get_fixed_lines(file_lines):
 					spl[idx] = new_str.strip()
 		fixed_lines.append(" ".join(spl))
 	
-	return fixed_lines	
+	### Step that is coreference-specific: change | 1 | to |1|, as to not treat the indexes as normal numbers, but as separate super characters
+	
+	if args.coref:
+		new_lines = []
+		for l in fixed_lines:
+			new_l = re.sub(r'\| (\d) \|',r'|\1|', l)
+			new_lines.append(new_l)
+		return new_lines	
+	else:		
+			
+		return fixed_lines	
 
 
 def process_pos_tagged(f_path):
