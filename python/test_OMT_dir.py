@@ -56,6 +56,7 @@ def process_dir(cp_direc):
 		print '-to_process must be dev or test'
 		sys.exit(0)		
 	
+	print process_file
 	with open(log_file, 'w') as f_out:
 		for root, dirs, files in os.walk(process_files):
 			for f in files:
