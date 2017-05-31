@@ -28,10 +28,10 @@ fi
 if [ -f $FILE ]; then
    if [ $4 = "dev" ]; then
       echo "Model file exists, do testing with dev folder"
-      python $test_script -o $output_dev -test $src -dev $dev -to_process $4 -tf $FILE -beam_size $beamsize -max_sent_length $max_sent_length -repl $replace_unk -n_best $n_best -test_ext $test_ext -tgt_ext $tgt_ext $gpu
+      python $test_script -o $output_dev -test $src -dev $dev -to_process $4 -tf $FILE -beam_size $beamsize -max_sent_length $max_sent_length -repl $replace_unk -n_best $n_best -test_ext $test_ext -tgt_ext $tgt_ext
    elif [ $4 = "test" ]; then
       echo "Model file exists, do testing with test folder"
-      python $test_script -o $output -test $src -dev $dev -to_process $4 -tf $FILE -beam_size $beamsize -max_sent_length $max_sent_length -repl $replace_unk -n_best $n_best -test_ext $test_ext -tgt_ext $tgt_ext $gpu
+      python $test_script -o $output -test $src -dev $dev -to_process $4 -tf $FILE -beam_size $beamsize -max_sent_length $max_sent_length -repl $replace_unk -n_best $n_best -test_ext $test_ext -tgt_ext $tgt_ext
    else
       echo "Model file exists, but last argument ($4) must be dev or test"
    fi   
