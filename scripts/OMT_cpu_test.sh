@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --time=01:00:00
 #SBATCH --nodes=1
-#SBATCH --ntasks=12
-#SBATCH --mem=12G
+#SBATCH --ntasks=2
+#SBATCH --mem=4G
 
 source $1	#$1 is the config file, all parameter values are there
 
