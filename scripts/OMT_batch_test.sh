@@ -8,5 +8,5 @@
 
 #very ugly way of calling multiple SLURM scripts
 
-echo "th /home/p266548/Documents/amr_Rik/OpenNMT/translate.lua -src $1 -output $2 -model $3 -beam_size $4 -max_sent_length $5 $6 -gpuid 1 -fallback_to_cpu"
+th /home/p266548/Documents/amr_Rik/OpenNMT/translate.lua -src $1 -output $2 -model $3 -beam_size $4 -max_sent_length $5 $6 -gpuid 1 -fallback_to_cpu
 
