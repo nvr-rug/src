@@ -188,7 +188,6 @@ def process_dir(output_direc):
 	else:
 		sent_folder = '/home/p266548/Documents/amr_Rik/data_2017_fixed_unicode/data/amrs/split/test/'	
 	
-	
 	with open(log_file, 'w') as f_out:	
 		for root, dirs, files in os.walk(output_direc):
 			for f in files:

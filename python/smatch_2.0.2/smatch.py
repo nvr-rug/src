@@ -824,6 +824,10 @@ def main(arguments):
         amr2.rename_node(prefix2)
         (instance1, attributes1, relation1) = amr1.get_triples()
         (instance2, attributes2, relation2) = amr2.get_triples()
+        print len(instance1), len(attributes1), len(relation1)
+        print len(instance1), len(attributes1), len(relation1)
+        #instance1 = []
+        #instance2 = []
         #print 'inst',instance2,'\n\n\n'
         #print 'att',attributes2,'\n'
         #print 'relation',relation2,'\n'

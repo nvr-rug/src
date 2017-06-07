@@ -48,8 +48,11 @@ def process_var_line(line, f):
 	var_list.append([var_name.strip(), var_value.strip().replace(')','')])	#add last one
 	
 	for item in var_list:
-		if not item[1].split()[-1].isdigit() and len(item[1].split()) > 1:			#keep in :quant 5 as last one, but not ARG1: or :mod
-			item[1] = " ".join(item[1].split()[0:-1])
+		try:
+			if not item[1].split()[-1].isdigit() and len(item[1].split()) > 1:			#keep in :quant 5 as last one, but not ARG1: or :mod
+				item[1] = " ".join(item[1].split()[0:-1])
+		except:
+			print 'Small error, just ignore'		
 						
 	return var_list
 
