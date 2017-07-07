@@ -109,7 +109,8 @@ def wikify_pipeline_output(in_file, wikifier, in_sents, f_out):
 					while not success:
 						try:
 							#spotlight = requests.post("http://spotlight.sztaki.hu:2222/rest/annotate", data = {'text':sentence, 'confidence':0.3})
-							spotlight = requests.post("http://model.dbpedia-spotlight.org:2222/rest/annotate", data = {'text':sentence, 'confidence':0.3})
+							#spotlight = requests.post("http://model.dbpedia-spotlight.org:2222/rest/annotate", data = {'text':sentence, 'confidence':0.3})
+							spotlight = requests.post("http://model.dbpedia-spotlight.org/en/annotate", data = {'text':sentence, 'confidence':0.3})
 							spotlight.encoding = 'utf-8'
 						except requests.exceptions.ConnectionError:
 							print 'sleeping a bit (spotlight overload)'
@@ -142,8 +143,8 @@ def wikify_pipeline_output(in_file, wikifier, in_sents, f_out):
 						wikified_line = line.strip()
 						
 					outfile.write(wikified_line + '\n')
-	f_out.write('\t\tFound {0} Wiki instances\n'.format(all_found))
-	f_out.write('\t\t{0} Unicode errors\n'.format(unicode_errors))				
+	#f_out.write('\t\tFound {0} Wiki instances\n'.format(all_found))
+	#f_out.write('\t\t{0} Unicode errors\n'.format(unicode_errors))				
 						
 					#if foundName:
 						#if ':op' in line:

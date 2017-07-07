@@ -18,6 +18,7 @@ parser.add_argument("-prod_ext", default = '.seq.amr', type=str, help="Prod exte
 parser.add_argument("-sent_ext", default = '.sent', type=str, help="Sent extension")
 parser.add_argument("-tgt_ext", default = '.char.tf', type=str, help="Target extension")
 parser.add_argument("-python_path", default = '/home/p266548/Documents/amr_Rik/Seq2seq/src/python/', type=str, help="Path where we keep the python source files")
+parser.add_argument('-nc', action='store_true', help='Not doing coreference, since we already do in the restore file')
 args = parser.parse_args() 
 
 
@@ -53,7 +54,7 @@ def check_valid(restore_file, rewrite, f_out):
 		out_f.close()		
 	else:
 		f_out.write('\t\t{0} AMRs with warning - no rewriting to default\n'.format(warnings))	
-
+	
 
 def get_logs(output_direc):
 	log_folder = "{0}/log".format(output_direc)
@@ -185,6 +186,8 @@ def process_dir(output_direc):
 	
 	if 'dev' in args.o:
 		sent_folder = args.o.replace('/output_dev','/working/dev')
+	elif 'bio' in args.o.lower():
+		sent_folder = args.o.replace('/output','/working/test')
 	else:
 		sent_folder = '/home/p266548/Documents/amr_Rik/data_2017_fixed_unicode/data/amrs/split/test/'	
 	
@@ -192,41 +195,54 @@ def process_dir(output_direc):
 		for root, dirs, files in os.walk(output_direc):
 			for f in files:
 				if f.endswith(args.prod_ext):
-					f_out.write('Processing steps of {0}\n'.format(f))
-					print 'Processing steps of {0}\n'.format(f)
-					
 					file_path = os.path.join(root,f)
-					if 'dev' in args.o:
-						sent_file = sent_folder + 'created_dev.sent.gold' 
-					else:
-						sent_file = sent_folder + f.replace(args.prod_ext, '.sent').replace('.char.sent','.sent')
+					if os.path.getsize(file_path) > 0: #check if file has content
 					
-					if not os.path.isfile(sent_file):
-						print sent_file
-						print 'Something is wrong, sent-file does not exist'	
-					# first do postprocessing steps individually
-					
-					restore_file 		= restore_amr(f, output_direc, file_path, f_out)
-					check_file			= check_invalid(restore_file, f_out)
-					prune_file 			= do_pruning(restore_file, f_out)
-					wiki_file, success 	= add_wikification(restore_file, sent_file, f_out)
-					coref_file 			= add_coreference(restore_file, f_out, '.coref')
-					
-					#then add all postprocessing steps together, starting at the pruning
-					
-					f_out.write('\tDo all postprocessing steps...\n')
-					print '\tDo all postprocessing steps...\n'
-					
-					check_file_pruned = do_pruning(check_file, f_out) 
-					wiki_file_pruned, success = add_wikification(check_file_pruned, sent_file, f_out)
-					
-					if success:
-						coref_file_wiki_pruned 	  = add_coreference(wiki_file_pruned, f_out, '.coref.all')
-					else:
-						f_out.write('\tWikification failed, not doing coreference on top of it\n')	
-					
-					f_out.write('\tDone processing!\n')
-					print '\tDone processing!\n'			
+						f_out.write('Processing steps of {0}\n'.format(f))
+						print 'Processing steps of {0}\n'.format(f)
+						
+						if 'dev' in args.o:
+							if 'bio' in args.o.lower():
+								sent_file = sent_folder + 'bio_dev_amrs.sent'
+							else:
+								sent_file = sent_folder + 'created_dev.sent.gold' 
+						else:
+							if 'bio' in args.o.lower():
+								sent_file = sent_folder + 'bio_test_amrs.sent'
+							else:	
+								sent_file = sent_folder + f.replace(args.prod_ext, '.sent').replace('.char.sent','.sent')
+						
+						if not os.path.isfile(sent_file):
+							print sent_file
+							print 'Something is wrong, sent-file does not exist'	
+						# first do postprocessing steps individually
+						
+						restore_file 		= restore_amr(f, output_direc, file_path, f_out)
+						check_file			= check_invalid(restore_file, f_out)
+						prune_file 			= do_pruning(restore_file, f_out)
+						if not args.nc:
+							coref_file 		= add_coreference(restore_file, f_out, '.coref')
+						
+						wiki_file, success 	= add_wikification(restore_file, sent_file, f_out)
+						
+						#then add all postprocessing steps together, starting at the pruning
+						
+						f_out.write('\tDo all postprocessing steps...\n')
+						print '\tDo all postprocessing steps...\n'
+						
+						check_file_pruned = do_pruning(check_file, f_out) 
+						wiki_file_pruned, success = add_wikification(check_file_pruned, sent_file, f_out)
+						
+						if success:
+							if not args.nc:
+								coref_file_wiki_pruned 	  = add_coreference(wiki_file_pruned, f_out, '.coref.all')
+							else:	#we already did coreference in restore file, still call the output-file .coref.all to not get confused in evaluation, just copy previous file
+								os.system("cp {0} {1}".format(wiki_file_pruned, wiki_file_pruned + '.coref.all'))	
+						else:
+							f_out.write('\tWikification failed, not doing coreference on top of it\n')	
+						
+						f_out.write('\tDone processing!\n')
+						print '\tDone processing!\n'			
 
 
 def create_dev_files():
@@ -244,7 +260,7 @@ def create_dev_files():
 if __name__ == "__main__":
 	check_dirs = get_check_dirs(args.o)
 	
-	if 'dev' in args.o:
+	if 'dev' in args.o and 'bio' not in args.o.lower():
 		create_dev_files()
 	
 	max_processes = min(len(check_dirs), 12)

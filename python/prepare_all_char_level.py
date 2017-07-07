@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-f", required=True, type=str, help="directory that contains amrs / sentences to be processed")
 parser.add_argument("-input_ext", default = '.sent',  required=False, type=str, help="Input extension of AMRs (default .sent)")
 parser.add_argument("-output_ext", default = '.tf', required=False, type=str, help="Output extension of AMRs (default .tf)")
+parser.add_argument('-c', action='store_true', help='Add some super characters for the coref paths')
 args = parser.parse_args()
 
 
@@ -73,6 +74,15 @@ def set_brack_lines(lst):
 		new_list.append(new_l)
 	return new_list	
 
+def fix_coref_lines(f):
+	'''Make super characters out of number indication of coref paths'''
+	
+	return_lines = []
+	for line in open(f, 'r'):
+		new_line = re.sub(r'\| (\d) \|',r'|\1|',line)	#replace | 3 | to |3|
+		return_lines.append(new_line)
+	
+	return return_lines	
 
 for root, dirs, files in os.walk(args.f):
 	for f in files:
@@ -94,3 +104,8 @@ for root, dirs, files in os.walk(args.f):
 				out_file = f_path.replace(args.input_ext,'.char' + args.input_ext).replace(args.output_ext,'.char' + args.output_ext)
 				os_call =  'sed -e "s/\ /+/g"  -e "s/./&\ /g" < {0} > {1}'.format(f_path, out_file)
 				os.system(os_call)
+				
+				if args.c and not f.endswith(args.input_ext):	#fix coref paths
+					print 'Fix coref paths'
+					return_lines = fix_coref_lines(out_file)
+					write_to_file(return_lines, out_file)

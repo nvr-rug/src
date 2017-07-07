@@ -6,7 +6,9 @@ reload(sys)
 import validator_seq2seq
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-f", required = True, type=str, help="File that needs coreference restored")
+parser.add_argument("-f", required = True, type=str, help="Folder with output files")
+parser.add_argument("-ext", default = '.seq.amr', type=str, help="Extension of file that need to be processed")
+
 args = parser.parse_args()
 
 def write_to_file(lst, f):
@@ -28,7 +30,7 @@ def restore_AMR(in_f):
 	return out_f
 
 
-def get_temp_file(lines_temp):
+def get_temp_file(lines_temp, f_path):
 	'''Put in such a format that restoring still works'''
 	
 	new_lines = []
@@ -57,7 +59,7 @@ def get_temp_file(lines_temp):
 							
 		else:
 			new_lines.append(line)  #no coreference here, do nothing
-	out_file = args.f + '.temp'
+	out_file = f_path + '.temp'
 	write_to_file(new_lines, out_file)
 	
 	return out_file
@@ -198,7 +200,9 @@ def find_replacement(line, item):
 	new_parts = filter_colons(tok_line)												#remove non-arguments that have a colon such as timestamps and websites
 	keep_string, search_part = get_keep_string(new_parts, 0)
 	path_found = True
-
+	
+	print args
+	
 	for idx in range(0, len(args)):
 		permutations = get_permutations(search_part)	
 		search_part = matching_perm(permutations, args[idx], nums[idx])
@@ -208,10 +212,14 @@ def find_replacement(line, item):
 			path_found = False
 			break # no path found
 	
+	print 'Total'
+	
 	if path_found:
 		ref_var = get_reference(search_part)
+		print 'Found'
 		return ref_var
 	else:
+		print 'Not found'
 		random_var = get_random_var(line)
 		#print closest_var
 		return closest_var
@@ -244,18 +252,23 @@ def replace_coref(f):
 		if validator_seq2seq.valid_amr(new_line):
 			new_lines.append(new_line)
 		else:
-			print 'Invalid AMR, writing default AMR'
+			ep = re.findall(r'epoch([\d]+)',f)
+			print 'Invalid AMR, writing default AMR, epoch: {0}'.format(ep[0])
 			default_amr = get_default_amr()
 			new_lines.append(default_amr)
 
-	write_to_file(new_lines, f.replace('.temp','') + '.corefclosest')				
+	write_to_file(new_lines, f.replace('.temp','') + '.coref')				
 		
 
 if __name__ == '__main__':
-	lines = [x.replace(' ','').replace('+',' ').strip() for x in open (args.f, 'r')]
-	temp_file	 = get_temp_file(lines)
-	restore_file = restore_AMR(temp_file)
-	replace_coref(restore_file)	
-	
-	#os_call = 'rm {0}*temp*'.format(args.f)
-	#os.system(os_call)	#clean up temp file		
+	for root, dirs, files in os.walk(args.f):
+		for f in files:
+			if f.endswith(args.ext):
+				f_path = os.path.join(root, f)
+				lines = [x.replace(' ','').replace('+',' ').strip() for x in open (f_path, 'r')]
+				temp_file	 = get_temp_file(lines, f_path)
+				restore_file = restore_AMR(temp_file)
+				replace_coref(restore_file)	
+				
+				#os_call = 'rm {0}/*temp*'.format(root)
+				#os.system(os_call)	#clean up temp files		

@@ -824,8 +824,8 @@ def main(arguments):
         amr2.rename_node(prefix2)
         (instance1, attributes1, relation1) = amr1.get_triples()
         (instance2, attributes2, relation2) = amr2.get_triples()
-        print len(instance1), len(attributes1), len(relation1)
-        print len(instance1), len(attributes1), len(relation1)
+        #print len(instance1), len(attributes1), len(relation1)
+        #print len(instance1), len(attributes1), len(relation1)
         #instance1 = []
         #instance2 = []
         #print 'inst',instance2,'\n\n\n'
@@ -889,6 +889,7 @@ def main(arguments):
         print >> DEBUG_LOG, total_match_num, total_test_num, total_gold_num
         print >> DEBUG_LOG, "---------------------------------------------------------------------------------"
     # output document-level smatch score (a single f-score for all AMR pairs in two files)
+    print 'Total test and gold num: {0} and {1}'.format(total_test_num, total_test_num)
     if single_score:
         (precision, recall, best_f_score) = compute_f(total_match_num, total_test_num, total_gold_num)
         print total_match_num, total_test_num, total_gold_num

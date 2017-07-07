@@ -6,7 +6,8 @@ import re
 import argparse
 import os
 
-'''Script that converts the AMRs to a single line, taking care of re-entrancies in a nice way'''
+'''Script that converts the AMRs to a single line, taking care of re-entrancies in a nice way
+   It does this by adding the absolute paths'''
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", required=True, type=str, help="directory that contains the amrs")
@@ -30,7 +31,6 @@ def single_line_convert(amrs):
 				sents.append(line.replace('# ::snt','').strip())
 		else:
 			cur_amr.append(line.strip())					
-	#print len(single_amrs), len(sents)
 	assert(len(single_amrs) == len(sents))
 	
 	return single_amrs, sents
@@ -118,7 +118,7 @@ def get_var_dict(spl):
 def variable_match(spl, idx, no_var_list, vars_seen):
 	'''Function that matches entities that are variables'''
 	if spl[idx+1] == '/':
-		vars_seen.append(spl[idx+1])
+		vars_seen.append(spl[idx])
 		return False, vars_seen
  	elif (not (spl[idx-1] == '/') and any(char.isalpha() for char in spl[idx]) and spl[idx] not in no_var_list):
 		return True, vars_seen
@@ -242,7 +242,11 @@ def replace_coreference(one_line_amrs, sents):
 		
 		for idx in range(1, len(spl)):	#skip first parenthesis to make things easier, add later
 			new_spl.append(spl[idx])	#add all parts, if it is a variable and needs changing we do that later
-			var_check, vars_seen = variable_match(spl, idx, no_var_list) 		#check if entity looks like a coreference variable
+			
+			if idx == (len(spl) -1):	#skip last item, never coreference variable
+				continue
+			
+			var_check, vars_seen = variable_match(spl, idx, no_var_list, vars_seen) 		#check if entity looks like a coreference variable
 			
 			if spl[idx] == '(':
 				level += 1
@@ -257,12 +261,14 @@ def replace_coreference(one_line_amrs, sents):
 				cur_path = cur_path[0:level]
 				previous_close = False
 				
-			elif vars_check:				#boolean that checked whether it is a variable
+			elif var_check:				#boolean that checked whether it is a variable
 				previous_close = False
 				
 				if not (spl[idx].startswith(':') or spl[idx].startswith('"')):	#not a relation or value, often re-entrancy, check whether it exists
 					if spl[idx] in var_dict:									#found variable, check paths
-						if spl[idx] not in vars_seen:		#we see a reference, but haven't seen the variable yet
+						if spl[idx] not in vars_seen:							#we see a reference, but haven't seen the variable yet
+							#print vars_seen
+							#print count, spl[idx]
 							pass #TODO: implement this later
 						
 						if spl[idx-1].startswith(':'):							#we skipped this part of the path because it doesn't start with a parenthesis, still add it here

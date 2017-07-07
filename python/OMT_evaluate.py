@@ -35,7 +35,10 @@ args = parser.parse_args()
 def do_args_check():
 	if args.to_process == 'dev':
 		res_dict_file = args.eval_folder + 'res_dict_dev.txt'
-		gold_root = args.g.replace('/test','/dev_all')
+		if 'bio' in args.eval_folder.lower():
+			gold_root = args.eval_folder.replace('/evaluation','/working/dev')
+		else:	
+			gold_root = args.g.replace('/test','/dev_all')
 	elif args.to_process == 'test':
 		res_dict_file = args.eval_folder + 'res_dict.txt'
 		gold_root = args.g
@@ -156,14 +159,18 @@ def prepare_data(ids, dict_file, gold_root):
 def get_gold_ids(root):
 	gold_ids = []
 	gold_files = []
+
 	for r, d, files in os.walk(root):
 		for f in files:
-			if '.txt' in f:
+			if f.endswith('.txt'):
 				if args.to_process == 'dev':
 					gold_ids.append('dev')
-				else:
+				elif 'bio' in args.eval_folder.lower():
+					gold_ids.append('test')
+				else:	
 					gold_ids.append(f.split('-')[6].split('.')[0])
 				gold_files.append(f)
+	
 	return gold_ids, gold_files		
 
 
@@ -204,12 +211,12 @@ def evaluate(entry, ident, model, gold_ids, gold_files, res_dict, gold_root):
 
 	one_line = '--one_line'
 	
-	if args.to_process == 'test':
+	if args.to_process == 'test' and 'bio' not in args.eval_folder.lower():
 		f_score, num_sen, res = combined_output_smatch(ident, one_line, entry, gold_root)	#calculate combination first
 		if res:
 			res_dict[model].append(['average', f_score, int(num_sen)])
 		else:
-			print 'No results for folder {0} and ident {1}'.format(entry, ident)	
+			print 'No results for folder {0} and ident {1}'.format(entry, ident)
 	
 	for root, dirs, files in os.walk(entry):
 		for f in files:
@@ -219,30 +226,26 @@ def evaluate(entry, ident, model, gold_ids, gold_files, res_dict, gold_root):
 						produced_f = os.path.join(root,f)
 						if os.path.getsize(produced_f) > 0:
 							if args.to_process == 'test':
-								gold_f = os.path.join(gold_root, get_gold_file(idn, gold_files))
+								
+								if 'bio' in args.eval_folder.lower():
+									gold_f = args.eval_folder.replace('/evaluation','/working/test') + 'bio_test_amrs.txt'
+								else:
+									gold_f = os.path.join(gold_root, get_gold_file(idn, gold_files))
 							else:
-								gold_f = args.eval_folder.replace('/evaluation','/working/dev') + 'created_dev.txt.gold'
+								if 'bio' in args.eval_folder.lower():
+									gold_f = args.eval_folder.replace('/evaluation','/working/dev') + 'bio_dev_amrs.txt'
+								else:	
+									gold_f = args.eval_folder.replace('/evaluation','/working/dev') + 'created_dev.txt.gold'
 								if not os.path.isfile(gold_f):
 									print 'Gold file doesnt exists, maybe run create_dev_file_again.py, now exiting...'
 									sys.exit(0)
 								
-							if not args.range_sen and not args.range_words: # the normal output
-								os_call = 'python ~/Documents/amr_Rik/Seq2seq/src/python/smatch_2.0.2/smatch.py -r {3} {2} -f {0} {1}'.format(produced_f, gold_f, one_line, args.rs)
-								f_score, num_sen = do_smatch(os_call, False)
-								res_dict[model].append([idn, f_score, int(num_sen)])
-								print 'F-score {0} for model {1} and ident {2} and idn {3}'.format(f_score, model, ident, idn)
 							
-							elif args.range_words and not args.range_sen:		#only calculate smatch for sentences with certain word range
-								os_call = 'python ~/Documents/amr_Rik/Seq2seq/src/python/smatch_2.0.2/smatch_max_length.py -w1 {3} -w2 {4} -r {5} {2} -f {0} {1}'.format(produced_f, gold_f, one_line, args.range_words[0], args.range_words[1], args.rs)	
-								f_score, processed_sen = do_smatch(os_call, True)
-								res_dict[model].append([idn, f_score, processed_sen])
-							
-							elif args.range_sen and not args.range_words:			# only calculate smatch score for sentences within a certain character range
-								os_call = 'python ~/Documents/amr_Rik/Seq2seq/src/python/smatch_2.0.2/smatch_max_length.py -b1 {3} -b2 {4} -r {5} {2} -f {0} {1}'.format(produced_f, gold_f, one_line, args.range_sen[0], args.range_sen[1], args.rs)	
-								f_score, processed_sen = do_smatch(os_call, True)
-								res_dict[model].append([idn, f_score, processed_sen])
-							else:
-								raise ValueError("Don't do both range_sen and range_words")
+							os_call = 'python ~/Documents/amr_Rik/Seq2seq/src/python/smatch_2.0.2/smatch.py -r {3} {2} -f {0} {1}'.format(produced_f, gold_f, one_line, args.rs)
+							f_score, num_sen = do_smatch(os_call, False)
+							res_dict[model].append([idn, f_score, int(num_sen)])
+							print 'F-score {0} for model {1} and ident {2} and idn {3}'.format(f_score, model, ident, idn)
+						
 						elif 'wiki' not in produced_f:
 							print produced_f			
 		break				
@@ -324,7 +327,8 @@ if __name__ == '__main__':
 		for ident in ids:
 			root_fix = args.roots_to_check + root
 			if res_dict[model_type[counter]] == []:
-				res_dict = evaluate(root_fix, ident, model_type[counter], gold_ids, gold_files, res_dict, gold_root)
+				if float(model_type[counter].split()[0]) > 3:	#sometimes uncomment this to only get results of certain epochs
+					res_dict = evaluate(root_fix, ident, model_type[counter], gold_ids, gold_files, res_dict, gold_root)
 			
 			counter += 1
 	

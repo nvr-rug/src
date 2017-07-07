@@ -155,4 +155,4 @@ if __name__ == '__main__':
 					os_call =  'sed -e "s/\ /+/g"  -e "s/./&\ /g" < {0} > {1}'.format(f_path, f_path.replace('.sent','.char.sent'))
 					os.system(os_call)
 				else:
-					print 'Both extensions not found, skipping {0}'.format(f)	
+					print 'All extensions not found, skipping {0}'.format(f)	

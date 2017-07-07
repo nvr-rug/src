@@ -7,7 +7,7 @@ import validator_seq2seq
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", required = True, type=str, help="File with AMRs (one line)")
-parser.add_argument("-out_ext", default = '.tf', type=str, help="Extension of output files")
+parser.add_argument("-out_ext", default = '.txt.ol', type=str, help="Extension of output files")
 args = parser.parse_args()
 
 def write_to_file(lst, f):
@@ -28,4 +28,4 @@ if __name__ == '__main__':
 					new_lines.append(fixed_line)
 				
 				#os.system('rm {0}'.format(f_path))
-				write_to_file(new_lines, f_path)
+				write_to_file(new_lines, f_path + '.novar')

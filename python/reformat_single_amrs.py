@@ -46,7 +46,7 @@ if __name__ == "__main__":
 	fixed_amrs = process_file(args.f)
 	with open(args.f + '.print', 'w') as out_f:
 		for amr in fixed_amrs:
-			out_f.write(amr.strip() + '\n\n')
+			out_f.write(amr.rstrip() + '\n')
 	out_f.close()	
 	
 	#for root, dirs, files in os.walk(args.f):
