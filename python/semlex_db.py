@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
-'''Script gets the semlex zardoz database'''
+'''Script that gets the semlex zardoz database'''
 
 import re,sys, argparse, os, subprocess, json, random
 import pmb

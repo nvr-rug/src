@@ -7,7 +7,6 @@ import validator_seq2seq
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", required = True, type=str, help="File with AMRs (one line)")
-#parser.add_argument("-b", required = True, type=str, help="Bio-test AMRs (one line)")
 args = parser.parse_args()
 
 

@@ -9,7 +9,7 @@ reload(sys)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", required = True, type=str, help="AMR-file")
-parser.add_argument("-r", required = True, choices=['rewrite', 'remove','show'], type =str, help="rewrite of remove AMRs?")
+parser.add_argument("-r", required = True, choices=['rewrite', 'remove','show'], type =str, help="rewrite, remove or show AMRs?")
 parser.add_argument("-o", required = False, default = '',  type=str, help="output-file for removed/rewritten AMRs")
 args = parser.parse_args()
 

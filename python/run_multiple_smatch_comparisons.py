@@ -5,7 +5,7 @@ import sys,re,argparse, os
 import utils, subprocess
 from multiprocessing import Pool
 
-'''Script for running CAMR preprocessing in parallel'''
+'''Script for running multiple Smatch comparisons'''
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-c", required=True, type=str, help="Starting directory CAMR output")
