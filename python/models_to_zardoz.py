@@ -21,6 +21,6 @@ if __name__ == '__main__':
 			for m in models:
 				if 'model' in m: #extra check to ensure we do not accidentally delete other files
 					m_file = os.path.join(args.f, m)
-					os_call = 'python ~/hulp_scripts/zardoz_sender.py {0}'.format(m_file)
+					os_call = 'scp -r {0} p266548@zardoz.service.rug.nl:{1}/'.format(m_file)
 					print os_call
 					
