@@ -38,4 +38,5 @@ if __name__ == '__main__':
 						stop = True
 						break
 		
-		os.system("sleep 300") #sleep for 5 minutes before checking again, no need to do this continiously				
+		if not stop:
+			os.system("sleep 300") #sleep for 5 minutes before checking again, no need to do this continiously				
