@@ -2,6 +2,7 @@
 # -*- coding: utf8 -*-
 
 import sys,re,argparse, os
+from time import gmtime, strftime
 
 '''Script that sends models to Zardoz and then removes them from Peregrine - to save space'''
 
@@ -20,7 +21,7 @@ if __name__ == '__main__':
 		if models:
 			os.system("sleep 5")	#wait a bit until the model is fully saved, probably too much, but we have the time anyway
 			for m in models: 
-				if 'model' in m: #extra check to ensure we do not accidentally delete other files
+				if 'model' in m and 'epoch' in m: #extra check to ensure we do not accidentally delete other files
 					model_ep  = int(re.search(r'epoch([\d]+)', m).group(1))	#errors when fails, extra check
 					
 					m_file = os.path.join(args.f, m)
@@ -29,7 +30,11 @@ if __name__ == '__main__':
 					os.system("sleep 5")
 					os.system("rm {0}".format(m_file))
 					
+					t = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+					print 'Moved model of epoch {0} at {1}'.format(model_ep, t)
+					
 					if model_ep >= args.end:
+						print 'Model {0} is the last one, stop checking'.format(model_ep)
 						stop = True
 						break
 		
