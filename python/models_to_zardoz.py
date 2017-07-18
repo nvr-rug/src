@@ -30,5 +30,16 @@ if __name__ == '__main__':
 		for m in models:
 			m_file = os.path.join(args.f, m)
 			model_ep  = int(re.search(r'epoch([\d]+)', m).group(1))
-			print 'Ep: {0}'.format(model_ep)
-			os.system("sleep 10")
+			
+			if args.epochs:
+				if model_ep in args.epochs:
+					print 'Keep ep {0}'.format(model_ep)
+				else:
+					print 'Delete ep {0}'.format(model_ep)	
+			elif model_ep >= args.e:
+				print 'Keep ep {0}'.format(model_ep)
+			else:		
+				print 'Delete ep {0}'.format(model_ep)
+		
+		os.system("sleep 10")	
+					
