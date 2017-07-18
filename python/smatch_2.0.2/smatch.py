@@ -810,6 +810,8 @@ def main(arguments):
     
     
     for idx in range(len(gold_amrs)):
+        #if idx % 100 == 0:
+		#	print idx
         cur_amr1 = prod_amrs[idx]
         cur_amr2 = gold_amrs[idx]
 
@@ -823,6 +825,9 @@ def main(arguments):
         # Renaming node to "b1", "b2", .etc
         amr2.rename_node(prefix2)
         (instance1, attributes1, relation1) = amr1.get_triples()
+        print instance1, '\n'
+        print attributes1,'\n'
+        print relation1,'\n'
         (instance2, attributes2, relation2) = amr2.get_triples()
         #print len(instance1), len(attributes1), len(relation1)
         #print len(instance1), len(attributes1), len(relation1)

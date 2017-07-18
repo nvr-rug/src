@@ -11,9 +11,9 @@ import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", required=True, type=str, help="directory that contains the amrs")
-parser.add_argument('-tf', required = True, help="output directory for output-file without '#' info (trainfile)")
 parser.add_argument('-extension', required = False, default = '.txt', help="extension of AMR files (default .txt)")
 parser.add_argument('-output_ext', required = False, default = '.tf', help="extension of output AMR files (default .tf)")
+parser.add_argument('-sent_ext', required = False, default = '.sent', help="extension of sentences (default .sent)")
 args = parser.parse_args()
 
 def single_line_convert(f):
@@ -87,12 +87,13 @@ def delete_amr_variables(amrs):
 	var_dict = dict()
 	del_amr = []
 	num_amrs = 0
+	sents = []
 	
 	for line in amrs:	
 		if not line.strip():
 			continue
 		elif line.startswith('# ::snt'):
-			cur_sent = line
+			sents.append(line.replace('# ::snt','').strip())
 			num_amrs += 1
 			printed = False
 		elif line[0] != '#':
@@ -105,11 +106,8 @@ def delete_amr_variables(amrs):
 				ref_var = split_line[1].replace(')', '')											# get var name
 				if ref_var in var_dict:
 					if not printed:
-						print num_amrs
-						#print 'Found coref for AMR {0}'.format(num_amrs)
-						#print cur_sent,'\n'
 						printed = True
-					#print 'Found variable {0} for AMR {1}'.format(ref_var, num_amrs)
+
 					ref_value = var_dict[ref_var]													# value to replace the variable name with
 					split_line[1] = split_line[1].replace(ref_var, '(' + ref_value.strip() + ')')   # do the replacing and add brackets for alignment
 					n_line = (len(line) - len(line.lstrip())) * ' ' + " ".join(split_line)
@@ -119,16 +117,14 @@ def delete_amr_variables(amrs):
 		else:
 			del_amr.append(line)
 
-	return del_amr
-	
-	
-def create_output(train_f, single_amrs):	
-	single_amr_train = [x for x in single_amrs if len(x) > 0 and x[0] != '#' ]
-	
-	with open(train_f,'w') as f:
-		for l in single_amr_train:
-			f.write(l + '\n')	
-		f.close()				
+	return del_amr, sents
+
+
+def write_to_file(l, f):
+	with open(f,'w') as out_f:
+		for line in l:
+			out_f.write(line.strip() + '\n')
+	out_f.close()
 
 
 if __name__ == "__main__":
@@ -137,8 +133,15 @@ if __name__ == "__main__":
 			if f.endswith(args.extension):
 				f_path = os.path.join(root, f)
 				amr_file_no_wiki = delete_wiki(f_path)
-				del_amrs = delete_amr_variables(amr_file_no_wiki)
+				del_amrs, sents = delete_amr_variables(amr_file_no_wiki)
 
-				#single_amrs = single_line_convert(del_amrs)
-				#out_f = args.tf + f.replace(args.extension,args.output_ext)
-				#create_output(out_f, single_amrs)
+				single_amrs = single_line_convert(del_amrs)
+				single_amrs_train = [x for x in single_amrs if len(x) > 0 and x[0] != '#' ]
+				
+				assert len(single_amrs_train) == len(sents)
+				
+				out_tf = f_path.replace(args.extension,args.output_ext)
+				out_sent = f_path.replace(args.extension, args.sent_ext)
+				
+				write_to_file(single_amrs_train, out_tf)
+				write_to_file(sents, out_sent)

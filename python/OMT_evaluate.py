@@ -18,14 +18,14 @@ parser.add_argument('-g', required=True, type=str, help="Folder with gold AMR fi
 parser.add_argument('-eval_folder', required = True, type=str, help="Evaluation folder")
 parser.add_argument('-exp_name', required = True, type=str, help="Name of experiment")
 parser.add_argument('-mx', required=False, type=int, default = 4, help="Number of maxthreads")
-parser.add_argument('-rs', required=False, type=int, default = 4, help="Number of restarts for smatch")
+parser.add_argument('-rs', required=False, type=int, default = 6, help="Number of restarts for smatch")
 parser.add_argument('-train_size', required=False, type=int, default = 33248 , help="Train size")
 parser.add_argument('-range_sen', nargs='+', type=int, default = [], help ='Range of sentence length [min max]')
 parser.add_argument('-range_words', nargs='+', type=int, default = [], help ='Set range of words instead of chars [min max]')
 parser.add_argument('-roots_to_check', required = True, help = 'Root folder to check for output results')
 parser.add_argument('-prod_ext', default = '.seq.amr.restore', type=str, help="Ext of produced files")
 parser.add_argument('-gold_ext', default = '.txt', type=str, help="Ext of produced files")
-parser.add_argument('-check', required = True, type=str, help="Include check-files or not")
+parser.add_argument('-type', required = True, action='store', choices=['old','all','comb','rest','prune','coref','wiki','sense'], help='Output choices')
 parser.add_argument('-to_process', required = True, type=str, help="Include check-files or not")
 parser.add_argument('-num_gold_files', default = 5, type=int, help="Number of individual gold files (5 for LDC2)")
 
@@ -46,20 +46,24 @@ def do_args_check():
 		print '-to_process must be dev or test'
 		sys.exit(0)
 	
-	if args.check == 'rest':
-		#ids = ['.seq.amr.restore', '.seq.amr.restore.pruned','seq.amr.restore.check']
+	if args.type == 'rest':
 		ids = ['.seq.amr.restore']
-		print 'Use new IDs'
-	elif args.check == 'all':
+	elif args.type == 'comb':
 		ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned','seq.amr.restore.check','.seq.amr.restore.check.pruned.wiki.coref.all']
-	elif args.check == 'old':
+	elif args.type == 'all':
+		ids = ['.seq.amr.restore.check.pruned.wiki.coref.all']
+	elif args.type == 'old':
 		print 'Use old IDs'
 		ids = ['.seq.amr.restore','.seq.amr.restore.wiki', '.seq.amr.restore.coref', '.seq.amr.restore.pruned','.seq.amr.restore.pruned.wiki.coref.all']
-	elif args.check == 'coref':
-		ids = ['.seq.amr.restore.coref', '.seq.amr.restore.corefrandom', '.seq.amr.restore.corefdelete', '.seq.amr.restore.corefclosest']
-	else:
-		print '-check should be rest, all or old, exiting...'
-		sys.exit(0)
+	elif args.type == 'coref':
+		ids = ['.seq.amr.restore.coref']
+	elif args.type == 'wiki':
+		ids = ['.seq.amr.restore.wiki']	
+	elif args.type == 'prune':
+		ids = ['.seq.amr.restore.pruned']
+	elif args.type == 'sense':
+		ids = ['.seq.amr.restore.check']
+	
 	return ids, res_dict_file, gold_root
 
 def combined_output_smatch(prod_ext, one_line, prod_dir, gold_root):
