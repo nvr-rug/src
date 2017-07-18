@@ -19,7 +19,7 @@ if __name__ == '__main__':
 		models = [f for f in os.listdir(args.f) if os.path.isfile(os.path.join(args.f + '/', f))]	#get all models
 		
 		if models:
-			os.system("sleep 5")	#wait a bit until the model is fully saved, probably too much, but we have the time anyway
+			os.system("sleep 120")	#wait a bit until the model is fully saved, probably too much, but we have the time anyway
 			for m in models: 
 				if 'model' in m and 'epoch' in m: #extra check to ensure we do not accidentally delete other files
 					model_ep  = int(re.search(r'epoch([\d]+)', m).group(1))	#errors when fails, extra check
@@ -27,10 +27,10 @@ if __name__ == '__main__':
 					m_file = os.path.join(args.f, m)
 					os_call = 'scp {0} p266548@zardoz.service.rug.nl:{0}'.format(m_file)
 					os.system(os_call)	#move file
-					os.system("sleep 5")
+					os.system("sleep 60")
 					os.system("rm {0}".format(m_file))
 					
-					t = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+					t = strftime("%d-%m-%Y %H:%M:%S", gmtime())
 					print 'Moved model of epoch {0} at {1}'.format(model_ep, t)
 					
 					if model_ep >= args.end:
