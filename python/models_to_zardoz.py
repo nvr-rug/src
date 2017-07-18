@@ -11,14 +11,13 @@ args = parser.parse_args()
 
 
 if __name__ == '__main__':
-	argument_check()
 	stop = False
 	
 	while not stop:
 		models = [f for f in os.listdir(args.f) if os.path.isfile(os.path.join(args.f + '/', f))]	#get all models
 		
 		if m:
-			os.system("sleep 180")	#wait a bit until the model is fully saved
+			os.system("sleep 5")	#wait a bit until the model is fully saved
 			for m in models:
 				if 'model' in m: #extra check to ensure we do not accidentally delete other files
 					m_file = os.path.join(args.f, m)
