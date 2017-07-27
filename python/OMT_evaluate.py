@@ -330,7 +330,7 @@ if __name__ == '__main__':
 	for idx, root in enumerate(dirs_to_check):
 		for ident in ids:
 			root_fix = args.roots_to_check + root
-			if res_dict[model_type[counter]] == []:
+			if res_dict[model_type[counter]] == []: #or float(model_type[counter].split()[0]) == 18.0:	#can add this to redo certain epochs anyway
 				if float(model_type[counter].split()[0]) > 3:	#sometimes uncomment this to only get results of certain epochs
 					res_dict = evaluate(root_fix, ident, model_type[counter], gold_ids, gold_files, res_dict, gold_root)
 			

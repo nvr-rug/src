@@ -92,7 +92,7 @@ def add_coreference(in_file, log_file, ext):
 	log_file.write('\tAdding coreference..\n')
 	coref_file = in_file + ext
 	if not os.path.isfile(coref_file):
-		coref_call = 'python ' + args.python_path + 'place_coreferents.py -f {0} -output_ext {1}'.format(in_file, ext)  #no wiki call
+		coref_call = 'python ' + args.python_path + 'restore_coref.py -f {0} -output_ext {1}'.format(in_file, ext)  #no wiki call
 		os.system(coref_call)
 	else:
 		print '\t\tCoref file already exists, skipping...'	

@@ -242,15 +242,16 @@ def get_permutations(part, level, all_perms):
 	
 	for p in permutations:
 		if p in permutations_set:
+			#print 'prune'
 			continue
 		elif p not in all_perms:
 			permutations_set.append(p)
 		elif all_perms.count(p) < 2:
 			permutations_set.append(p)
-	all_perms += permutations
-	
-	#for x in range(len(permutations) - len(permutations_set)):
-	#	print 'change'
+		#else:
+			#print 'prune'
+		all_perms.append(p)	
+	#all_perms += permutations
 	
 	return permutations_set, keep_string, all_perms
 
@@ -302,8 +303,14 @@ if __name__ == '__main__':
 			keep_str = '(' + keep_string1
 			final_string = get_best_perm(permutations,  keep_str, all_perms)
 			add_to = create_final_line(final_string)
+			add_to = " ".join(add_to.split())
+			clean_line = " ".join(clean_line.split())
+			
 			filtered_amrs.append(add_to)
+			
 			if add_to != clean_line:
+				#print add_to
+				#print clean_line,'\n'
 				#analyse_each(add_to, line, bio_amrs[idx])
 				changed += 1
 				#nice_print_amr(add_to)
