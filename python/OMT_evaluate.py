@@ -129,17 +129,25 @@ def prepare_data(ids, dict_file, gold_root):
 	all_epochs = []
 	for fol in dirs_to_check:
 		for idx, ident in enumerate(ids):
+			idf = ident.split('.')[-1]
+			
 			if 'epoch' not in fol:
 				train_inst = fol.split('-')[-1]
 				ep_num = round(float(train_inst) / float(args.train_size),1)
 				all_epochs.append(ep_num)
+				m_type = '{0} epochs ({1}) '.format(ep_num, idf)		
+
+			elif 'ensemble' in fol and 'epochs' in fol:				   #getting the epoch doesn't work for averaged ensemble model	
+				eps = fol.split('epochs_')[1].split('.')[0].split('_') #HACK: only get [15,16,17,18,19,20] out of model_ensemble_6_last_epochs_15_16_17_18_19_20.t7
+				all_epochs.append('Avg ' + " ".join(eps))
+				m_type = 'Avg {0} ({1})'.format(" ".join(eps), idf)
 			else:
 				ep_num = float(re.findall(r'epoch([\d]+)', fol)[0])
 				all_epochs.append(ep_num)
-	
-			idf = ident.split('.')[-1]
-			m_type = '{0} epochs ({1}) '.format(ep_num, idf)		
+				m_type = '{0} epochs ({1}) '.format(ep_num, idf)		
+			
 			model_type.append(m_type)
+	
 		
 	gold_ids, gold_files = get_gold_ids(gold_root)
 	
@@ -208,7 +216,16 @@ def do_smatch(os_call, range_check):
 		return f_score, processed_sen
 	else:	
 		return f_score, num_sen
+	
 			
+def is_number(lis):
+    for x in lis:
+        try:
+            float(x)
+            return True
+        except:
+            return False
+
 
 def evaluate(entry, ident, model, gold_ids, gold_files, res_dict, gold_root):
 	'''Will print smatch scores for Seq2seq checkpoints'''
@@ -303,10 +320,16 @@ def print_nice_output(res_dict, gold_ids, model_type, all_epochs):
 							print_l += '\t' + str(item[1])
 		print_list.append(print_l)					
 	
-	printer = [y[1] for y in sorted([[float(z.split()[0]), z] for z in print_list], key = lambda x : x[0])] #sort by number of epochs
-	for p in printer: print p
+	printer = [y[1] for y in sorted([[float(z.split()[0]), z] for z in print_list if not z.startswith('Avg')], key = lambda x : x[0])] #sort by number of epochs
+	print_ens = [x for x in print_list if 'Avg' in x]
 	
-	eval_file = args.eval_folder + args.to_process.upper() + '_eval_' + str(int(round(max(all_epochs),0))) + 'eps' + datetime.datetime.now().strftime ("_%d_%m_%Y_") +  '.txt'
+	for p in printer: print p
+	print ''	#newline between normal results and ensembles
+	for p in print_ens: print p
+	
+	all_eps = [s for s in all_epochs if is_number(str(s))]
+	
+	eval_file = args.eval_folder + args.to_process.upper() + '_eval_' + str(int(round(max(all_eps),0))) + 'eps' + datetime.datetime.now().strftime ("_%d_%m_%Y_") +  '.txt'
 	
 	
 	with open(eval_file, 'w') as out_f:
@@ -331,7 +354,8 @@ if __name__ == '__main__':
 		for ident in ids:
 			root_fix = args.roots_to_check + root
 			if res_dict[model_type[counter]] == []: #or float(model_type[counter].split()[0]) == 18.0:	#can add this to redo certain epochs anyway
-				if float(model_type[counter].split()[0]) > 3:	#sometimes uncomment this to only get results of certain epochs
+				#print model_type[counter]
+				if model_type[counter].startswith('Avg') or float(model_type[counter].split()[0]) > 3:	#sometimes uncomment this to only get results of certain epochs
 					res_dict = evaluate(root_fix, ident, model_type[counter], gold_ids, gold_files, res_dict, gold_root)
 			
 			counter += 1
