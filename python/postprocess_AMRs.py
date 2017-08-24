@@ -19,6 +19,7 @@ parser.add_argument("-sent_ext", default = '.sent', type=str, help="Sent extensi
 parser.add_argument("-tgt_ext", default = '.char.tf', type=str, help="Target extension")
 parser.add_argument("-python_path", default = '/home/p266548/Documents/amr_Rik/Seq2seq/src/python/', type=str, help="Path where we keep the python source files")
 parser.add_argument('-nc', action='store_true', help='Not doing coreference, since we already do in the restore file')
+parser.add_argument('-no_wiki', action='store_true', help='Not doing Wikification, since it takes a long time')
 args = parser.parse_args() 
 
 
@@ -223,23 +224,24 @@ def process_dir(output_direc):
 						if not args.nc:
 							coref_file 		= add_coreference(restore_file, f_out, '.coref')
 						
-						wiki_file, success 	= add_wikification(restore_file, sent_file, f_out)
-						
-						#then add all postprocessing steps together, starting at the pruning
-						
-						f_out.write('\tDo all postprocessing steps...\n')
-						print '\tDo all postprocessing steps...\n'
-						
-						check_file_pruned = do_pruning(check_file, f_out) 
-						wiki_file_pruned, success = add_wikification(check_file_pruned, sent_file, f_out)
-						
-						if success:
-							if not args.nc:
-								coref_file_wiki_pruned 	  = add_coreference(wiki_file_pruned, f_out, '.coref.all')
-							else:	#we already did coreference in restore file, still call the output-file .coref.all to not get confused in evaluation, just copy previous file
-								os.system("cp {0} {1}".format(wiki_file_pruned, wiki_file_pruned + '.coref.all'))	
-						else:
-							f_out.write('\tWikification failed, not doing coreference on top of it\n')	
+						if not args.no_wiki:	#sometime we don't want to Wikification
+							wiki_file, success 	= add_wikification(restore_file, sent_file, f_out)
+							
+							#then add all postprocessing steps together, starting at the pruning
+							
+							f_out.write('\tDo all postprocessing steps...\n')
+							print '\tDo all postprocessing steps...\n'
+							
+							check_file_pruned = do_pruning(check_file, f_out) 
+							wiki_file_pruned, success = add_wikification(check_file_pruned, sent_file, f_out)
+							
+							if success:
+								if not args.nc:
+									coref_file_wiki_pruned 	  = add_coreference(wiki_file_pruned, f_out, '.coref.all')
+								else:	#we already did coreference in restore file, still call the output-file .coref.all to not get confused in evaluation, just copy previous file
+									os.system("cp {0} {1}".format(wiki_file_pruned, wiki_file_pruned + '.coref.all'))	
+							else:
+								f_out.write('\tWikification failed, not doing coreference on top of it\n')	
 						
 						f_out.write('\tDone processing!\n')
 						print '\tDone processing!\n'			

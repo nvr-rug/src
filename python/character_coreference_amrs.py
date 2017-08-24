@@ -130,6 +130,7 @@ def replace_coreference(one_line_amrs, sents):
 	no_var_list = ['interrogative','expressive','imperative']						# we always skip stuff such as :mode interrogative as possible variables
 	
 	for count, spl in enumerate(amrs):						
+		#print '\ncount {0}\n'.format(count+1)
 		all_vars = []
 		
 		for idx in range(0, len(spl)):
@@ -143,11 +144,13 @@ def replace_coreference(one_line_amrs, sents):
 			if variable_match(spl, idx, no_var_list): 		#check if entity looks like a coreference variable				
 				if all_vars.count(spl[idx]) > 1:			#if entity occurs at least twice, make mention of it
 					if spl[idx] in vars_seen:
+						print 'Ref found'
 						new_spl.append('*{0}*'.format(vars_seen.index(spl[idx])))
 					else:
 						new_spl.append('*{0}*'.format(len(vars_seen)))
 						vars_seen.append(spl[idx])
 					 
+					#print new_spl[-1]
 			elif spl[idx] != '/':		#part of variable, skip
 				new_spl.append(spl[idx])
 							
@@ -155,7 +158,8 @@ def replace_coreference(one_line_amrs, sents):
 		new_line = " ".join(new_spl)
 		while ' )' in new_line or '( ' in new_line:								#reverse the tokenization process
 			new_line = new_line.replace(' )',')').replace('( ','(')
-			
+		
+		#print new_line	
 		new_amrs.append(new_line)
 	
 	assert len(amrs) == len(new_amrs)
@@ -182,5 +186,5 @@ if __name__ == "__main__":
 				out_f = args.f + f.replace(args.extension,args.output_ext)
 				out_f_sents = args.f + f.replace(args.extension, '.sent')
 				
-				create_output(out_f, repl_amrs)
-				create_output(out_f_sents, sents)
+				#create_output(out_f, repl_amrs)
+				#create_output(out_f_sents, sents)

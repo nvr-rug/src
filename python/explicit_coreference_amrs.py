@@ -7,7 +7,7 @@ import argparse
 import os
 
 '''Script that converts the AMRs to a single line, taking care of re-entrancies in a nice way
-   It does this by adding the absolute paths'''
+   It does this by adding the absolute or relative paths'''
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-f", required=True, type=str, help="directory that contains the amrs")
@@ -230,6 +230,7 @@ def replace_coreference(one_line_amrs, sents):
 	new_amrs = []
 	amrs = [x.replace('(',' ( ').replace(')',' ) ').split() for x in one_line_amrs]	# "tokenize" AMRs
 	no_var_list = ['interrogative','expressive','imperative']						# we always skip stuff such as :mode interrogative as possible variables
+	path_dict = {}
 	
 	for count, spl in enumerate(amrs):
 		var_dict = get_var_dict(spl)	#find the path for each variable, save in dict								
@@ -287,9 +288,17 @@ def replace_coreference(one_line_amrs, sents):
 							
 							new_spl[-1] = out_line									#change the previously saved part to the outline here
 						else:
+							#print new_spl[-1]
+							#print " ".join(spl),'\n'
 							out_line = '{ ' + var_dict[spl[idx]][1]	+ ' }'
 							new_spl[-1] = out_line
-						
+							
+							add_path = var_dict[spl[idx]][1]
+							
+							if add_path not in path_dict:
+								path_dict[add_path] = 1
+							else:	
+								path_dict[add_path] += 1
 						#print 'For {0} in AMR {1}'.format(spl[idx], count)
 						#print sents[count]
 						#print out_line,'\n'				
@@ -305,6 +314,20 @@ def replace_coreference(one_line_amrs, sents):
 	
 	assert len(amrs) == len(new_amrs)
 	
+	#total, once = 0, 0
+	#max_len = 0
+	
+	#for key in path_dict:
+		#total += 1
+		#if path_dict[key] == 1:
+			#once += 1
+		
+		#if len(key.split()) > max_len:
+			#max_len = len(key.split())
+			#long_path = key
+	
+	#print 'Longest path: {0}\nOf length: {1}\n'.format(max_len, long_path)			
+	#print '{0} out of {1} are unique'.format(once, total)		
 	return new_amrs	
 
 def create_output(train_f, single_amrs):	
@@ -329,5 +352,5 @@ if __name__ == "__main__":
 				out_f = args.f + f.replace(args.extension,args.output_ext)
 				out_f_sents = args.f + f.replace(args.extension, '.sent')
 				
-				create_output(out_f, final_amrs)
-				create_output(out_f_sents, sents)
+				#create_output(out_f, final_amrs)
+				#create_output(out_f_sents, sents)

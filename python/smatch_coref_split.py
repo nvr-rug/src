@@ -31,7 +31,7 @@ def variable_match(spl, idx, no_var_list):
 
 		return False
 	
- 	if not spl[idx+1] == '/' and not spl[idx-1] == '/' and any(char.isalpha() for char in spl[idx]) and spl[idx] not in no_var_list and not spl[idx].startswith(':') and len([x for x in spl[idx] if x.isalpha() or x.isdigit()]) == len(spl[idx]) and (len(spl[idx]) == 1 or (len(spl[idx].strip()) > 1 and spl[idx][-1].isdigit())):
+ 	if spl[idx] and not spl[idx][0].isupper() and not spl[idx+1] == '/' and not spl[idx-1] == '/' and any(char.isalpha() for char in spl[idx]) and spl[idx] not in no_var_list and not spl[idx].startswith(':') and len([x for x in spl[idx] if x.isalpha() or x.isdigit()]) == len(spl[idx]) and (len(spl[idx]) == 1 or (len(spl[idx].strip()) > 1 and spl[idx][-1].isdigit())):
 		return True
 	else:
 		return False
@@ -46,9 +46,11 @@ def has_coreference(line):
 	
 	for idx in range(0, len(spl) -1):
 		if variable_match(spl, idx, no_var_list): 		#check if entity looks like a coreference variable				
+			print spl[idx]
 			all_vars.append(spl[idx])
 	
-	return len(set(all_vars))
+	return len(all_vars)
+
 
 def get_amrs(f):
 	all_amrs = []
@@ -152,8 +154,8 @@ if __name__ == "__main__":
 	
 	prod_coref_f, gold_coref_f, prod_rest_f, gold_rest_f = split_by_coref(prod_amrs, gold_amrs, cor_dir, ident)
 	
-	f_score_coref = do_smatch(prod_coref_f, gold_coref_f)
-	f_score_rest = do_smatch(prod_rest_f, gold_rest_f)
+	#f_score_coref = do_smatch(prod_coref_f, gold_coref_f)
+	#f_score_rest = do_smatch(prod_rest_f, gold_rest_f)
 	
-	print "F-score coref: {0}".format(f_score_coref)
-	print "F-score rest: {0}".format(f_score_rest)
+	#print "F-score coref: {0}".format(f_score_coref)
+	#print "F-score rest: {0}".format(f_score_rest)
