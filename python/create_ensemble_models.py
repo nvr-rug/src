@@ -15,6 +15,7 @@ parser.add_argument("-min_last", required = False, default = 2, type=int, help="
 parser.add_argument("-max_last", required = False, default = 6, type=int, help="Maximal number of models to average for last X models")
 parser.add_argument("-max_num", required = False, default = 5, type=int, help="Max number of models in total for same ppx models for certain threshold")
 parser.add_argument("-min_num_ppx", required = False, default = 4, type=int, help="Min number of models to average for same ppx models for certain threshold")
+parser.add_argument("-print_only", required = False, action = 'store_true', help="If true only print models we want to create - don't actually create them")
 args = parser.parse_args()
 
 
@@ -24,7 +25,10 @@ def average_models(models, output_file):
 	sub_call = ["lua", args.script,'-models'] + models + ['-output_model',output_file, '-gpuid','1']
 	
 	if not os.path.isfile(output_file):	#don't do this is output file already exists
-		subprocess.call(sub_call)
+		if args.print_only:
+			print 'Create', output_file
+		else:	
+			subprocess.call(sub_call)
 	else:
 		print 'Dont create {0}, exists already'.format(output_file)	
 
