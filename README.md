@@ -19,7 +19,7 @@ Simply clone the repository to your system to get started. All python programs a
 
 ### Prerequisites
 
-The Wikification script needs BeautifulSoup to work.
+The Wikification script needs [BeautifulSoup](https://pypi.python.org/pypi/beautifulsoup4) to work.
 
 ## Running the scripts
 
@@ -40,13 +40,17 @@ python create_coref_paths.py -f sample_input/sample.txt -p abs
 python create_coref_indexing.py -f sample_input/sample.txt
 ```
 
-The last script is similar to var_free_amrs.py, but swaps different AMR branches to best match the word order of the sentence. **This script needs the aligned AMRs as input!** By using the option -double, both the best aligned and original AMR are added in the dataset.
+The last script is similar to var_free_amrs.py, but swaps different AMR branches to best match the word order of the sentence. 
+
+**This script needs the aligned AMRs as input!**
 
 ```
 python best_amr_permutation.py -f sample_alignment_input/sample.txt
 ```
 
-It is also possible to put the files in character-level format. There are options to keep POS-tags (-pos) or relations (-s) (:ARG1, :mod, etc)S as single characters. If you used the Absolute Paths or Indexing method in a previous step, please indicate this by using -c.
+By using the option -double, both the best aligned and original AMR are added in the dataset.
+
+It is also possible to put the files in character-level format. There are options to keep POS-tags (-pos) or relations (-s) (:ARG1, :mod, etc) as single characters. If you used the Absolute Paths or Indexing method in a previous step, please indicate this by using -c.
 
 ```
 python char_level_amr.py -f sample_alignment_input/sample.txt.tf
@@ -54,7 +58,11 @@ python char_level_amr.py -f sample_alignment_input/sample.txt.tf
 
 ### Post-processing
 
-The post-processing script are used to restore the variables and wiki-links, while also possibly handling the coreference nodes. There are individual scripts that can do each step, but they are combined in postprocess_AMRs.py. This script first restores the variables, by using a modified restoring script from [Didzis Gosko](https://github.com/didzis/tensorflowAMR/tree/master/SemEval2016/restoreAMR). Then, duplicate nodes are pruned (common problem when parsing) and coreference is put back (when duplicating that is, for Abs and Index method this is done in the restoring step). Finally, Wikipedia links are restored using Spotlight. These steps are done separately (creating .restore, .prune, .coref and .wiki files), but also together (creating .all file).
+The post-processing script are used to restore the variables and wiki-links, while also possibly handling the coreference nodes. There are individual scripts that can do each step, but they are combined in postprocess_AMRs.py. 
+
+This script first restores the variables, by using a modified restoring script from [Didzis Gosko](https://github.com/didzis/tensorflowAMR/tree/master/SemEval2016/restoreAMR). Then, duplicate nodes are pruned (common problem when parsing) and coreference is put back (when duplicating that is, for Abs and Index method this is done in the restoring step). 
+
+Finally, Wikipedia links are restored using Spotlight. These steps are done separately (creating .restore, .prune, .coref and .wiki files), but also together (creating .all file).
 
 ```
 python postprocess_AMRs.py -f sample_alignment_input/sample.char.tf -s sample_alignment_input/sample.sent -o sample_input/
