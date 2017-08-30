@@ -808,6 +808,7 @@ def main(arguments):
         print >> ERROR_LOG, "Error: File 2 has less AMRs than file 1"
         raise ValueError
     
+    total_triples1, total_triples2 = 0, 0
     
     for idx in range(len(gold_amrs)):
         #if idx % 100 == 0:
@@ -829,6 +830,11 @@ def main(arguments):
         #print attributes1,'\n'
         #print relation1,'\n'
         (instance2, attributes2, relation2) = amr2.get_triples()
+        
+        total_triples1 += len(instance1) + len(attributes1) + len(relation1)
+        total_triples2 += len(instance2) + len(attributes2) + len(relation2)
+        
+        
         #print len(instance1), len(attributes1), len(relation1)
         #print len(instance1), len(attributes1), len(relation1)
         #instance1 = []
@@ -836,6 +842,7 @@ def main(arguments):
         #print 'inst',instance2,'\n\n\n'
         #print 'att',attributes2,'\n'
         #print 'relation',relation2,'\n'
+        
         if verbose:
             # print parse results of two AMRs
             print >> DEBUG_LOG, "AMR pair", sent_num
@@ -889,6 +896,10 @@ def main(arguments):
         # clear the matching triple dictionary for the next AMR pair
         match_triple_dict.clear()
         sent_num += 1
+    
+    print 'Total triples1: {0}'.format(total_triples1)
+    print 'Total triples2: {0}'.format(total_triples2)
+    
     if verbose:
         print >> DEBUG_LOG, "Total match number, total triple number in AMR 1, and total triple number in AMR 2:"
         print >> DEBUG_LOG, total_match_num, total_test_num, total_gold_num

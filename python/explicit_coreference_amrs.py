@@ -232,7 +232,11 @@ def replace_coreference(one_line_amrs, sents):
 	no_var_list = ['interrogative','expressive','imperative']						# we always skip stuff such as :mode interrogative as possible variables
 	path_dict = {}
 	
+	coref_amrs = []
+	
 	for count, spl in enumerate(amrs):
+		if count % 5000 == 0:
+			print 'At AMR: {0}'.format(count)
 		var_dict = get_var_dict(spl)	#find the path for each variable, save in dict								
 		
 		cur_path = []
@@ -292,8 +296,11 @@ def replace_coreference(one_line_amrs, sents):
 							#print " ".join(spl),'\n'
 							out_line = '{ ' + var_dict[spl[idx]][1]	+ ' }'
 							new_spl[-1] = out_line
-							
+							#print out_line
 							add_path = var_dict[spl[idx]][1]
+							
+							if not coref_amrs or coref_amrs[-1] != count:		#check if we already added this AMR
+								coref_amrs.append(count)
 							
 							if add_path not in path_dict:
 								path_dict[add_path] = 1
@@ -312,22 +319,24 @@ def replace_coreference(one_line_amrs, sents):
 			
 		new_amrs.append(new_line)
 	
+	print 'Length of AMRs with coref: {0}'.format(len(coref_amrs))
+	
 	assert len(amrs) == len(new_amrs)
 	
-	#total, once = 0, 0
-	#max_len = 0
+	total, once = 0, 0
+	max_len = 0
 	
-	#for key in path_dict:
-		#total += 1
-		#if path_dict[key] == 1:
-			#once += 1
+	for key in path_dict:
+		total += 1
+		if path_dict[key] == 1:
+			once += 1
 		
-		#if len(key.split()) > max_len:
-			#max_len = len(key.split())
-			#long_path = key
+		if len(key.split()) > max_len:
+			max_len = len(key.split())
+			long_path = key
 	
-	#print 'Longest path: {0}\nOf length: {1}\n'.format(max_len, long_path)			
-	#print '{0} out of {1} are unique'.format(once, total)		
+	print 'Longest path: {0}\nOf length: {1}\n'.format(max_len, long_path)			
+	print '{0} out of {1} are unique'.format(once, total)		
 	return new_amrs	
 
 def create_output(train_f, single_amrs):	
