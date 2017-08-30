@@ -1,8 +1,17 @@
 # Pre- and post-processing scripts for neural sequence-to-sequence AMR parsing
 
-This repository contains a list of scripts that help in pre- and post-processing for neural AMR parsing. It helps put the AMR files into structures sequence-to-sequence models can handle. AMRs are converted to a single-line format, with variables and wiki-links removed. There are multiple options to handle co-referring nodes. There is also script that transforms the input AMR to best match the word order of the sentence. 
+This repository contains a list of scripts that help in pre- and post-processing for neural AMR parsing. It helps put the AMR files into structures sequence-to-sequence models can handle. 
 
-There are also scripts that put produced AMR files back in their original AMR format (restoring variables, wiki links).
+The scripts can do the following things:
+
+* Convert AMRs to single-line format and split AMRs and sentences
+* Remove variables and wiki-links
+* Handle co-referring nodes in different ways
+* Swap AMR branches so that the surface string best matches the word order
+* Put the input files in different character-level formats
+* Restore variables and Wiki-links in the output
+* Restore the co-referring nodes
+* Remove duplicate output
 
 ## Getting Started
 
