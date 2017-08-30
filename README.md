@@ -6,7 +6,7 @@ There are also scripts that put produced AMR files back in their original AMR fo
 
 ## Getting Started
 
-Simply clone the repository to your system to get started. All python programs are in Python2.7, not 3.
+Simply clone the repository to your system to get started. All python programs are in Python 2.7, not 3.
 
 ### Prerequisites
 
@@ -28,9 +28,6 @@ There are two scripts that handle co-reference, either by using the Absolute Pat
 
 ```
 python create_coref_paths.py -f sample_input/sample.txt -p abs
-```
-
-```
 python create_coref_indexing.py -f sample_input/sample.txt
 ```
 
@@ -38,6 +35,12 @@ The last script is similar to var_free_amrs.py, but swaps different AMR branches
 
 ```
 python best_amr_permutation.py -f sample_alignment_input/sample.txt
+```
+
+It is also possible to put the files in character-level format. There are options to keep POS-tags (-pos) or relations (-s) (:ARG1, :mod, etc)S as single characters. If you used the Absolute Paths or Indexing method in a previous step, please indicate this by using -c.
+
+```
+python char_level_amr.py -f sample_alignment_input/sample.txt.tf
 ```
 
 ### Post-processing
@@ -54,7 +57,7 @@ Here -f is the file to be processed, -s is the sentence file (needed for Wikific
 
 * All scripts are AMR-specific, meaning that they are very reliant on the gold standard AMR formatting.
 * This is **only** for pre- and post-processing, **not training and testing!** I recommend [OpenNMT](http://opennmt.net/) as a library for doing the actual experiments. All parameter settings can be found in the papers described below.
-
+* Please see all individual scripts for all parameter options and samples of the input and output.
 
 ## Papers ##
 
@@ -68,4 +71,4 @@ For coreference-specific information:
 
 ## About the Author
 
-**Rik van Noord**, PhD student at University of Groningen, supervised by Johan Bos. Please see my [Personal website](http://rikvannoord.nl/) for more information. I'm happy to answer questions.
+**Rik van Noord**, PhD student at University of Groningen, supervised by Johan Bos. Please see my [personal website](http://rikvannoord.nl/) for more information. I'm happy to answer questions.
