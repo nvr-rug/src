@@ -46,7 +46,7 @@ Running with our example data:
 -s    : What kind of smart initial mapping we use:
        'no'   : No smart mappings
        'order': Smart mapping based on order of the variables in the DRG (b1 maps to b1, b2 to b2, etc)
-       'conc' : Smart mapping based on matching concepts (their match is likely to be in the optimal mapping)
+       'conc' : Smart mapping based on matching concepts (likely to be in the optimal mapping)
        'att'  : Smart mapping based on attribute triples (proper names usually), default
        'init' : Smart mapping based on number of initial matches for a set of mappings
        'freq' : Smart mapping based on frequency of the variables (currently not implemented)
