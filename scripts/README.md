@@ -56,11 +56,11 @@ python d-match.py -f1 example_data/10_drgs.prod -f2 10_drgs.gold
        'att'  : Smart mapping based on attribute triples (proper names usually), default
        'init' : Smart mapping based on number of initial matches for a set of mappings
        'freq' : Smart mapping based on frequency of the variables (currently not implemented)
--prin : Print more specific output, such as individual (average) F-scores for the smart initial mappings, 
+-prin : Print more specific output, such as individual (avg) F-scores for the smart initial mappings, 
         and the matching and non-matching triples
 -sense: Use this to do sense experiments
        'normal' : Don't change anything, just use triples as is (default)   
-       'wrong'  : Always use the wrong sense for a concept - used to see impact of concept identification
+       'wrong'  : Always use the wrong sense for a concept; used to see impact of concept identification
        'ignore' : Ignore sense - meaning we always produced the correct sense
        'base'   : Always use the first sense for a concept (baseline)
 -sig  : Number of significant digits to output (default 4)
