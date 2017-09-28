@@ -5,7 +5,9 @@ It is heavily based on [SMATCH](https://github.com/snowblink14/smatch), with a f
 
 ## Getting Started
 
-```git clone https://github.com/RikVN/D-match```
+```
+git clone https://github.com/RikVN/D-match
+```
 
 ### Prerequisites
 
