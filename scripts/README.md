@@ -28,11 +28,15 @@ D-match runs with Python 2.7.
 
 The most vanilla version can be run like this:
 
-```python d-match.py -f1 FILE1 -f2 FILE2```
+```
+python d-match.py -f1 FILE1 -f2 FILE2
+```
 
 Running with our example data:
 
-```python d-match.py -f1 example_data/10_drgs.prod -f2 10_drgs.gold```
+```
+python d-match.py -f1 example_data/10_drgs.prod -f2 10_drgs.gold
+```
 
 ### Parameter options ###
 
