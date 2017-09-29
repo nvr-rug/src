@@ -91,7 +91,7 @@ python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4 -
 Only take smaller DRGs into account, with a maximum of 50 triples:
 
 ```
-python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4 -prin -s conc -m 50
+python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4 -prin -m 50
 ```
 
 Doing a run that does not care about word sense disambuation:
