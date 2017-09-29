@@ -11,7 +11,7 @@ git clone https://github.com/RikVN/D-match
 
 ### Prerequisites
 
-D-match runs with Python 2.7.
+D-match runs with Python 2.7. The memory component needs [psutil](https://pypi.python.org/pypi/psutil).
 
 ## Differences with SMATCH ##
 
@@ -24,6 +24,7 @@ D-match runs with Python 2.7.
 * D-match can use more smart initial mappings, based on concepts, names, variables order and initial matches
 * D-match can print more detailed output, such as specific matching triples and F-scores for each smart mapping
 * D-match can have a maximum number of triples for a single DRG, ignoring DRG-pairs with more triples
+* D-match can have a memory limit per parallel thread
 * Since DRGs have variable types, D-match ensures that different variable types can never match
 
 ## Running D-match
@@ -37,7 +38,7 @@ python d-match.py -f1 FILE1 -f2 FILE2
 Running with our example data:
 
 ```
-python d-match.py -f1 example_data/10_drgs.prod -f2 10_drgs.gold
+python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold
 ```
 
 ### Parameter options ###
@@ -66,19 +67,52 @@ python d-match.py -f1 example_data/10_drgs.prod -f2 10_drgs.gold
 -sig  : Number of significant digits to output (default 4)
 -b    : Use this for baseline experiments, comparing a single DRG to a list of DRGs. 
         Produced DRG file should contain a single DRG.
+-mem  : Memory limit per parallel thread in MBs, default 500        
 -ms   : Instead of averaging the score, output a score for each DRG
--pr   : Also output precison and recall
+-pr   : Also output precison and recall instead of only F-score
 -v    : Verbose output
 -vv   : Very verbose output  
 ```
 
 ### Running some tests ###
 
-Description of tests here.
+Run with 100 restarts, with 4 parallel threads to speed things up:
 
-### Reproducing experiment in LREC paper ###
+```
+python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4
+```
 
-Reproduction script here.
+Print specific output, while only using the smart mapping based on concepts:
+
+```
+python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4 -prin -smart conc
+```
+
+Only take smaller DRGs into account, with a maximum of 50 triples:
+
+```
+python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4 -prin -smart conc -max_triples 50
+```
+
+Doing a run that does not care about word sense disambuation:
+
+```
+python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4 -prin --smart all --max_triples 50 -sense ignore
+```
+
+Outputting a score for each DRG (note we use -p 1 to not mess up printing):
+
+```
+python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 1 -prin --smart all --max_triples 50 -sense ignore -ms
+```
+
+Doing a baseline experiment, comparing a single DRG to a number of DRGs:
+
+```
+python d-match.py -f1 example_data/single_drg.prod -f2 100_drgs.gold -r 100 -p 4 -prin --smart all
+```
+
+
 
 ## Author
 
