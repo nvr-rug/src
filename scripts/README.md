@@ -97,22 +97,20 @@ python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4 -
 Doing a run that does not care about word sense disambuation:
 
 ```
-python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4 -prin -s all -m 50 -sense ignore
+python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -p 4 -prin -sense ignore
 ```
 
 Outputting a score for each DRG (note we use -p 1 to not mess up printing):
 
 ```
-python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 1 -prin -s all -m 50 -sense ignore -ms
+python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 1 -prin -ms
 ```
 
 Doing a baseline experiment, comparing a single DRG to a number of DRGs:
 
 ```
-python d-match.py -f1 example_data/single_drg.prod -f2 100_drgs.gold -r 100 -p 4 -prin --s all
+python d-match.py -f1 example_data/single_drg.prod -f2 100_drgs.gold -r 100 -p 4 -prin --baseline
 ```
-
-
 
 ## Author
 
