@@ -38,7 +38,7 @@ python d-match.py -f1 FILE1 -f2 FILE2
 Running with our example data:
 
 ```
-python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold
+python d-match.py -f1 data/100_drgs.prod -f2 data/100_drgs.gold
 ```
 
 ### Parameter options ###
@@ -79,37 +79,43 @@ python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold
 Run with 100 restarts, with 4 parallel threads to speed things up:
 
 ```
-python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4
+python d-match.py -f1 data/100_drgs.prod -f2 data/100_drgs.gold -r 100 -p 4
 ```
 
 Print specific output, while only using the smart mapping based on concepts:
 
 ```
-python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4 -prin -s conc
+python d-match.py -f1 data/100_drgs.prod -f2 data/100_drgs.gold -r 100 -p 4 -prin -s conc
 ```
 
 Only take smaller DRGs into account, with a maximum of 50 triples:
 
 ```
-python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 4 -prin -m 50
+python d-match.py -f1 data/100_drgs.prod -f2 data/100_drgs.gold -r 100 -p 4 -prin -m 50
 ```
 
 Doing a run that does not care about word sense disambuation:
 
 ```
-python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -p 4 -prin -sense ignore
+python d-match.py -f1 data/100_drgs.prod -f2 data/100_drgs.gold -r 100 -p 4 -prin -sense ignore
+```
+
+Doing a single DRG, printing the matching and non-matching triples:
+
+```
+python d-match.py -f1 data/single_drg.prod -f2 data/single_drg.gold -r 100 -p 4 -prin
 ```
 
 Outputting a score for each DRG (note we use -p 1 to not mess up printing):
 
 ```
-python d-match.py -f1 example_data/100_drgs.prod -f2 100_drgs.gold -r 100 -p 1 -prin -ms
+python d-match.py -f1 data/100_drgs.prod -f2 data/100_drgs.gold -r 100 -p 1 -prin -ms
 ```
 
 Doing a baseline experiment, comparing a single DRG to a number of DRGs:
 
 ```
-python d-match.py -f1 example_data/single_drg.prod -f2 100_drgs.gold -r 100 -p 4 -prin --baseline
+python d-match.py -f1 data/single_drg.prod -f2 data/100_drgs.gold -r 100 -p 4 -prin --baseline
 ```
 
 ## Author
